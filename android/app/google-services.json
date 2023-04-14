@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "385003370337",
+    "project_id": "e-santren",
+    "storage_bucket": "e-santren.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:385003370337:android:86d4bba9d33e3f47d47720",
+        "android_client_info": {
+          "package_name": "com.example.esantren_insights_v1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "385003370337-fbv9o92ohjp5ig12m0g9nhh9hbpal1kt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUzCFpsGhVbAckRPW9lLL4t8KM1hHxUMg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "385003370337-fbv9o92ohjp5ig12m0g9nhh9hbpal1kt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "385003370337-ordag7s78q217g39srd9htj5lgghbrdm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.esantrenV1"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:385003370337:android:669f821d52a38691d47720",
+        "android_client_info": {
+          "package_name": "com.example.esantren_v1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "385003370337-fbv9o92ohjp5ig12m0g9nhh9hbpal1kt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUzCFpsGhVbAckRPW9lLL4t8KM1hHxUMg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "385003370337-fbv9o92ohjp5ig12m0g9nhh9hbpal1kt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "385003370337-ordag7s78q217g39srd9htj5lgghbrdm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.esantrenV1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
