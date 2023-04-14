@@ -4,6 +4,7 @@ import 'package:esantren_insights_v1/Objects/PembayaranObject_6BulanTerakhir.dar
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -22,11 +23,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int jumlahSantriSakit = 10;
   int jumlahSantriAda = 190;
   int jumlahSantriHadirNgaji = 180;
-  int jumlahLunasSPP = 165;
+  int jumlahLunasSPP = 50;
   int jumlahKelas = 11;
   int jumlahKelasAbsenHariIni = 10;
   late double persentasePembayarSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
   late double persentaseLunasSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+  int pemasukanSPP_pointer = 0;
+  List<int> pemasukanSPP = [125000000, 288000000, 192000000];
 
   @override
   void initState() {
@@ -142,7 +145,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       child: DefaultTabController(
                         length: 2,
                         child: Container(
-                          padding: EdgeInsets.only(top: 12),
+                          padding: EdgeInsets.only(top: 8),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -234,7 +237,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 child: DefaultTabController(
                   length: 3,
                   child: Container(
-                    padding: EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -245,8 +247,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             Container(
                               child: Center(
                                 child: SfCartesianChart(
+                                  title: ChartTitle(
+                                      text: 'Santri Aktif vs Lunas',
+                                      textStyle: GoogleFonts.poppins(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey)),
                                   legend: Legend(
-                                      isVisible: true, isResponsive: true),
+                                      isVisible: false, isResponsive: true),
                                   primaryXAxis: CategoryAxis(),
                                   primaryYAxis:
                                       NumericAxis(minimum: 0, maximum: 300),
@@ -289,9 +297,106 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            Container(
-                              child: Center(
-                                child: Text("Paid vs Unpaid"),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    // increment pemasukanSPP_pointer by 1 unless it's already 2, then set it to 0
+                                    pemasukanSPP_pointer =
+                                        pemasukanSPP_pointer == 2
+                                            ? 0
+                                            : pemasukanSPP_pointer + 1;
+                                  });
+                                },
+                                child: Container(
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Pemasukan SPP',
+                                          style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.grey,
+                                              fontSize: 16),
+                                        ),
+                                        Center(
+                                          child: Text(
+                                            'Rp ${NumberFormat('#,###').format(pemasukanSPP[pemasukanSPP_pointer]).replaceAll(",", ".")}',
+                                            style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.green,
+                                                fontSize: 32),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 250,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Text(
+                                                'Bulan Ini',
+                                                style: GoogleFonts.poppins(
+                                                    fontWeight:
+                                                        pemasukanSPP_pointer ==
+                                                                0
+                                                            ? FontWeight.w600
+                                                            : FontWeight.w400,
+                                                    color:
+                                                        pemasukanSPP_pointer ==
+                                                                0
+                                                            ? Colors.black
+                                                            : Colors
+                                                                .grey
+                                                                .withOpacity(
+                                                                    0.5),
+                                                    fontSize: 12),
+                                              ),
+                                              Text(
+                                                '6 Bulan',
+                                                style: GoogleFonts.poppins(
+                                                    fontWeight:
+                                                        pemasukanSPP_pointer ==
+                                                                1
+                                                            ? FontWeight.w600
+                                                            : FontWeight.w400,
+                                                    color:
+                                                        pemasukanSPP_pointer ==
+                                                                1
+                                                            ? Colors.black
+                                                            : Colors
+                                                                .grey
+                                                                .withOpacity(
+                                                                    0.5),
+                                                    fontSize: 12),
+                                              ),
+                                              Text(
+                                                'Tahun Ini',
+                                                style: GoogleFonts.poppins(
+                                                    fontWeight:
+                                                        pemasukanSPP_pointer ==
+                                                                2
+                                                            ? FontWeight.w600
+                                                            : FontWeight.w400,
+                                                    color:
+                                                        pemasukanSPP_pointer ==
+                                                                2
+                                                            ? Colors.black
+                                                            : Colors
+                                                                .grey
+                                                                .withOpacity(
+                                                                    0.5),
+                                                    fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ]),
+                                ),
                               ),
                             ),
                           ]),
@@ -470,10 +575,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget PembayaranSPPCard_1(BuildContext context) {
+    //make a color gradient for the progress bar. it depends on the persentase lunas spp, from red accent, orange accent, yellow accent, green accent
+
+    Color progressBarColor = Colors.green;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        SizedBox(height: 8),
         Text('Persentase Pelunasan SPP Bulan Ini',
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600, color: Colors.grey)),
@@ -492,9 +601,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               animationDuration: 2000,
               alignment: MainAxisAlignment.center,
               percent: persentaseLunasSPP / 100,
-              linearStrokeCap: LinearStrokeCap.butt,
               backgroundColor: Colors.grey.withOpacity(0.4),
-              progressColor: Colors.blueAccent.withOpacity(0.5),
+              progressColor: getGradientColor(persentaseLunasSPP),
             ),
           ),
         ),
@@ -586,6 +694,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 }
 
+Color getGradientColor(double value) {
+  List<Color> colors = [
+    Colors.redAccent,
+    Colors.orangeAccent,
+    Colors.greenAccent
+  ];
+
+  List<double> stops = [0.0, 0.66, 1.0];
+
+  // Map the value to a range between 0 and 1
+  double normalizedValue = value / 100;
+
+  // Interpolate the gradient color based on the normalized value
+  int index = (normalizedValue * (stops.length - 1)).floor();
+  double t =
+      (normalizedValue - stops[index]) / (stops[index + 1] - stops[index]);
+  return Color.lerp(colors[index], colors[index + 1], t)!;
+}
+
 Widget DetailSantri(BuildContext context,
     {required int angka, required String keterangan, bool? isMiddle}) {
   Color color;
@@ -604,6 +731,7 @@ Widget DetailSantri(BuildContext context,
       color = Colors.grey;
       break;
   }
+
   return Container(
     width: MediaQuery.of(context).size.width / 4.5,
     padding: EdgeInsets.only(left: 8, right: 8),
