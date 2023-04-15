@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:esantren_insights_v1/Classes/Pembayaran6BulanTerakhirClass.dart';
-import 'package:esantren_insights_v1/Objects/PembayaranObject_6BulanTerakhir.dart';
+import 'package:esantren_insights_v1/Classes/PembayaranClass.dart';
+import 'package:esantren_insights_v1/Objects/PembayaranObject.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -9,6 +9,11 @@ import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../Classes/DataHomePageClass.dart';
+import '../Classes/SantriClass.dart';
+import '../Objects/DataHomePageObject.dart';
+import '../Objects/SantriObject.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,12 +24,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
-  int jumlahSantriAktif = 2;
-  int jumlahSantriIzin = 1;
-  int jumlahSantriSakit = 1;
-  int jumlahSantriAda = 1;
-  int jumlahSantriHadirNgaji = 1;
-  int jumlahLunasSPP = 1;
+
   int jumlahKelas = 1;
   int jumlahKelasAbsenHariIni = 1;
   late double persentasePembayarSPP = 1;
@@ -32,6 +32,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int pemasukanSPP_pointer = 0;
   List<int> pemasukanSPP = [0, 0, 0];
   List<PembayaranObject_6BulanTerakhir> chartData = [];
+  List<SantriObject> semuaSantriAktif = [];
+  late DataHomePageObject dataHomePageObject = DataHomePageObject(
+      jumlahSantriAktif: 0,
+      jumlahSantriAda: 0,
+      jumlahSantriIzin: 0,
+      jumlahSantriSakit: 0,
+      jumlahSantriHadirNgaji: 0,
+      jumlahLunasSPP: 0);
 
   Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
       .collection('SantriCollection')
@@ -41,7 +49,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Stream<QuerySnapshot> _invoiceStream = FirebaseFirestore.instance
       .collection('InvoiceCollection')
       .where('kodeAsrama', isEqualTo: 'DU15_AlFalah')
-      .orderBy('tglInvoice', descending: false)
+      .orderBy('tglInvoice', descending: true)
       .limit(12)
       .snapshots();
 
@@ -50,61 +58,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     _santriStream.listen((QuerySnapshot snapshot) {
-      jumlahSantriAktif = 0;
-      jumlahSantriAda = 0;
-      jumlahSantriIzin = 0;
-      jumlahSantriSakit = 0;
-      jumlahSantriHadirNgaji = 0;
-      jumlahLunasSPP = 0;
-      snapshot.docs.forEach((DocumentSnapshot document) {
-        // print(document.data());
-        jumlahSantriAktif++;
-        if (document['statusKehadiran'] == 'Ada' ||
-            document['statusKehadiran'] == 'Hadir') {
-          jumlahSantriAda++;
-        } else if (document['statusKehadiran'] == 'Izin' ||
-            document['statusKehadiran'] == 'Pulang') {
-          jumlahSantriIzin++;
-        } else if (document['statusKehadiran'] == 'Sakit') {
-          jumlahSantriSakit++;
-        } else {
-          print('Aneh ${document['statusKehadiran']}');
-        }
+      semuaSantriAktif = SantriClass.getSantriList(snapshot);
+      dataHomePageObject = DataHomePageClass.getDataHomePage(snapshot);
 
-        try {
-          if (document['absenNgaji'] == 'Hadir') {
-            jumlahSantriHadirNgaji++;
-          }
-        } catch (e) {
-          print(e);
-        }
-
-        if (document['lunasSPP'] == true) {
-          jumlahLunasSPP++;
-        }
-
-        getOtherAsynchronusData();
-      });
-      // setState(() {
-      //   persentasePembayarSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
-      //   persentaseLunasSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
-      // });
-      _invoiceStream.listen((QuerySnapshot snapshot) {
-        chartData = [];
-        snapshot.docs.forEach((DocumentSnapshot document) {
-          double jumlahSantriAktif = document['jumlahSantriAktif'].toDouble();
-          double jumlahPembayar = document['jumlahPembayar'].toDouble();
-          String tglInvoice = document.id.substring(0, 3);
-          print(document.data());
-          chartData.add(PembayaranObject_6BulanTerakhir(
-              tglInvoice, jumlahPembayar, jumlahSantriAktif));
-        });
-      });
       getOtherAsynchronusData();
       setState(() {
-        persentasePembayarSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
-        persentaseLunasSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+        persentasePembayarSPP = dataHomePageObject.jumlahLunasSPP /
+            dataHomePageObject.jumlahSantriAktif *
+            100;
+        persentaseLunasSPP = dataHomePageObject.jumlahLunasSPP /
+            dataHomePageObject.jumlahSantriAktif *
+            100;
       });
+    });
+
+    _invoiceStream.listen((QuerySnapshot snapshot) {
+      chartData =
+          Pembayaran_6BulanTerakhirClass.getPembayaran6BulanTerakhir(snapshot);
     });
   }
 
@@ -113,9 +83,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     // _santriStream.toList().then((value) => print('Print this $value'));
 
     Map<String, double> dataMap = {
-      "Ada": jumlahSantriAda.toDouble(),
-      "Izin": jumlahSantriIzin.toDouble(),
-      "Sakit": jumlahSantriSakit.toDouble(),
+      "Ada": dataHomePageObject.jumlahSantriAda.toDouble(),
+      "Izin": dataHomePageObject.jumlahSantriIzin.toDouble(),
+      "Sakit": dataHomePageObject.jumlahSantriSakit.toDouble(),
     };
 
     // final List<PembayaranObject_6BulanTerakhir> chartData =
@@ -155,7 +125,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         children: [
                           Expanded(
                             child: TabBarView(children: [
-                              JumlahSantriAktifCard_1(context),
+                              jumlahSantriAktifCard_1(context),
                               Container(
                                 child: Center(
                                   child: PieChart(
@@ -228,8 +198,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   children: [
                                     AbsenNgajiCard(context,
                                         title: 'Kehadiran Ngaji Hari Ini',
-                                        subset: jumlahSantriHadirNgaji,
-                                        total: jumlahSantriAktif),
+                                        subset: dataHomePageObject
+                                            .jumlahSantriHadirNgaji,
+                                        total: dataHomePageObject
+                                            .jumlahSantriAktif),
                                     AbsenNgajiCard(context,
                                         title: 'Jumlah Absensi Kelas',
                                         total: jumlahKelas,
@@ -443,7 +415,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   });
                                                 },
                                                 child: Text(
-                                                  '6 Bulan',
+                                                  '3 Bulan',
                                                   style: GoogleFonts.poppins(
                                                       fontWeight:
                                                           pemasukanSPP_pointer ==
@@ -628,7 +600,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget JumlahSantriAktifCard_1(BuildContext context) {
+  Widget jumlahSantriAktifCard_1(BuildContext context) {
     return GestureDetector(
       child: Container(
           child: Column(
@@ -640,7 +612,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 fontWeight: FontWeight.w600, color: Colors.grey, fontSize: 16),
           ),
           Text(
-            jumlahSantriAktif.toString(),
+            dataHomePageObject.jumlahSantriAktif.toString(),
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
@@ -651,13 +623,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 DetailSantri(context,
-                    angka: jumlahSantriAda, keterangan: "Ada"),
+                    angka: dataHomePageObject.jumlahSantriAda,
+                    keterangan: "Ada"),
                 DetailSantri(context,
-                    angka: jumlahSantriIzin,
+                    angka: dataHomePageObject.jumlahSantriIzin,
                     keterangan: "Izin",
                     isMiddle: true),
                 DetailSantri(context,
-                    angka: jumlahSantriSakit, keterangan: "Sakit"),
+                    angka: dataHomePageObject.jumlahSantriSakit,
+                    keterangan: "Sakit"),
               ],
             ),
           ),
@@ -721,21 +695,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         fontWeight: FontWeight.w400, fontSize: 12)),
               if (persentaseLunasSPP < 50)
                 TextSpan(
-                    text: '$jumlahLunasSPP/$jumlahSantriAktif santri',
+                    text:
+                        '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w800,
                         color: Colors.redAccent,
                         fontSize: 12))
               else if (persentaseLunasSPP < 90 && persentaseLunasSPP >= 50)
                 TextSpan(
-                    text: '$jumlahLunasSPP/$jumlahSantriAktif santri',
+                    text:
+                        '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w800,
                         color: Colors.orangeAccent,
                         fontSize: 12))
               else if (persentaseLunasSPP >= 90)
                 TextSpan(
-                    text: '$jumlahLunasSPP/$jumlahSantriAktif santri',
+                    text:
+                        '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w800,
                         color: Colors.green,
@@ -786,6 +763,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> getOtherAsynchronusData() async {
+    pemasukanSPP = [0, 0, 0];
     List<PembayaranObject_6BulanTerakhir> dataPembayaran =
         await Pembayaran_6BulanTerakhirClass.getPembayaranTahunIni();
     print('bulan ini ${dataPembayaran[dataPembayaran.length - 1].bulan}');
@@ -793,6 +771,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             dataPembayaran[dataPembayaran.length - 1].nominal!)
         .round()
         .toInt();
+    print('sebelum masuk loop ${pemasukanSPP}');
+    pemasukanSPP[1] = 0;
+    pemasukanSPP[2] = 0;
 
     int index = dataPembayaran.length - 1;
     int pemasukan = 0;
@@ -803,9 +784,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           (dataPembayaran[index].santriLunas * dataPembayaran[index].nominal!)
               .round()
               .toInt();
+      print(pemasukan);
       if (index > dataPembayaran.length - 3) {
         print('masuk');
+        print('sebelum ${pemasukanSPP[1]}');
         pemasukanSPP[1] += pemasukan;
+        print('sesudah ${pemasukanSPP[1]}');
       }
       pemasukanSPP[2] += pemasukan;
     }
