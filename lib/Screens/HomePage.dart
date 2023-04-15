@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:esantren_insights_v1/Classes/Pembayaran6BulanTerakhirClass.dart';
 import 'package:esantren_insights_v1/Objects/PembayaranObject_6BulanTerakhir.dart';
@@ -18,35 +19,108 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
-  int jumlahSantriAktif = 207;
-  int jumlahSantriIzin = 7;
-  int jumlahSantriSakit = 10;
-  int jumlahSantriAda = 190;
-  int jumlahSantriHadirNgaji = 180;
-  int jumlahLunasSPP = 50;
-  int jumlahKelas = 11;
-  int jumlahKelasAbsenHariIni = 10;
-  late double persentasePembayarSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
-  late double persentaseLunasSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+  int jumlahSantriAktif = 2;
+  int jumlahSantriIzin = 1;
+  int jumlahSantriSakit = 1;
+  int jumlahSantriAda = 1;
+  int jumlahSantriHadirNgaji = 1;
+  int jumlahLunasSPP = 1;
+  int jumlahKelas = 1;
+  int jumlahKelasAbsenHariIni = 1;
+  late double persentasePembayarSPP = 1;
+  late double persentaseLunasSPP = 1;
   int pemasukanSPP_pointer = 0;
-  List<int> pemasukanSPP = [125000000, 288000000, 192000000];
+  List<int> pemasukanSPP = [0, 0, 0];
+  List<PembayaranObject_6BulanTerakhir> chartData = [];
+
+  Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
+      .collection('SantriCollection')
+      .where('statusAktif', isEqualTo: 'Aktif')
+      .snapshots();
+
+  Stream<QuerySnapshot> _invoiceStream = FirebaseFirestore.instance
+      .collection('InvoiceCollection')
+      .where('kodeAsrama', isEqualTo: 'DU15_AlFalah')
+      .orderBy('tglInvoice', descending: false)
+      .limit(12)
+      .snapshots();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _santriStream.listen((QuerySnapshot snapshot) {
+      jumlahSantriAktif = 0;
+      jumlahSantriAda = 0;
+      jumlahSantriIzin = 0;
+      jumlahSantriSakit = 0;
+      jumlahSantriHadirNgaji = 0;
+      jumlahLunasSPP = 0;
+      snapshot.docs.forEach((DocumentSnapshot document) {
+        // print(document.data());
+        jumlahSantriAktif++;
+        if (document['statusKehadiran'] == 'Ada' ||
+            document['statusKehadiran'] == 'Hadir') {
+          jumlahSantriAda++;
+        } else if (document['statusKehadiran'] == 'Izin' ||
+            document['statusKehadiran'] == 'Pulang') {
+          jumlahSantriIzin++;
+        } else if (document['statusKehadiran'] == 'Sakit') {
+          jumlahSantriSakit++;
+        } else {
+          print('Aneh ${document['statusKehadiran']}');
+        }
+
+        try {
+          if (document['absenNgaji'] == 'Hadir') {
+            jumlahSantriHadirNgaji++;
+          }
+        } catch (e) {
+          print(e);
+        }
+
+        if (document['lunasSPP'] == true) {
+          jumlahLunasSPP++;
+        }
+
+        getOtherAsynchronusData();
+      });
+      // setState(() {
+      //   persentasePembayarSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+      //   persentaseLunasSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+      // });
+      _invoiceStream.listen((QuerySnapshot snapshot) {
+        chartData = [];
+        snapshot.docs.forEach((DocumentSnapshot document) {
+          double jumlahSantriAktif = document['jumlahSantriAktif'].toDouble();
+          double jumlahPembayar = document['jumlahPembayar'].toDouble();
+          String tglInvoice = document.id.substring(0, 3);
+          print(document.data());
+          chartData.add(PembayaranObject_6BulanTerakhir(
+              tglInvoice, jumlahPembayar, jumlahSantriAktif));
+        });
+      });
+      getOtherAsynchronusData();
+      setState(() {
+        persentasePembayarSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+        persentaseLunasSPP = jumlahLunasSPP / jumlahSantriAktif * 100;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // _santriStream.toList().then((value) => print('Print this $value'));
+
     Map<String, double> dataMap = {
       "Ada": jumlahSantriAda.toDouble(),
       "Izin": jumlahSantriIzin.toDouble(),
       "Sakit": jumlahSantriSakit.toDouble(),
     };
 
-    final List<PembayaranObject_6BulanTerakhir> chartData =
-        Pembayaran_6BulanTerakhirClass.getPembayaran6BulanTerakhir();
+    // final List<PembayaranObject_6BulanTerakhir> chartData =
+    //     Pembayaran_6BulanTerakhirClass.getPembayaran6BulanTerakhir();
+    // print(chartData);
 
     return Scaffold(
       appBar: AppBar(
@@ -338,59 +412,77 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceAround,
                                             children: [
-                                              Text(
-                                                'Bulan Ini',
-                                                style: GoogleFonts.poppins(
-                                                    fontWeight:
-                                                        pemasukanSPP_pointer ==
-                                                                0
-                                                            ? FontWeight.w600
-                                                            : FontWeight.w400,
-                                                    color:
-                                                        pemasukanSPP_pointer ==
-                                                                0
-                                                            ? Colors.black
-                                                            : Colors
-                                                                .grey
-                                                                .withOpacity(
-                                                                    0.5),
-                                                    fontSize: 12),
+                                              TextButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    pemasukanSPP_pointer = 0;
+                                                  });
+                                                },
+                                                child: Text(
+                                                  'Bulan Ini',
+                                                  style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          pemasukanSPP_pointer ==
+                                                                  0
+                                                              ? FontWeight.w600
+                                                              : FontWeight.w400,
+                                                      color:
+                                                          pemasukanSPP_pointer ==
+                                                                  0
+                                                              ? Colors.black
+                                                              : Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                      fontSize: 12),
+                                                ),
                                               ),
-                                              Text(
-                                                '6 Bulan',
-                                                style: GoogleFonts.poppins(
-                                                    fontWeight:
-                                                        pemasukanSPP_pointer ==
-                                                                1
-                                                            ? FontWeight.w600
-                                                            : FontWeight.w400,
-                                                    color:
-                                                        pemasukanSPP_pointer ==
-                                                                1
-                                                            ? Colors.black
-                                                            : Colors
-                                                                .grey
-                                                                .withOpacity(
-                                                                    0.5),
-                                                    fontSize: 12),
+                                              TextButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    pemasukanSPP_pointer = 1;
+                                                  });
+                                                },
+                                                child: Text(
+                                                  '6 Bulan',
+                                                  style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          pemasukanSPP_pointer ==
+                                                                  1
+                                                              ? FontWeight.w600
+                                                              : FontWeight.w400,
+                                                      color:
+                                                          pemasukanSPP_pointer ==
+                                                                  1
+                                                              ? Colors.black
+                                                              : Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                      fontSize: 12),
+                                                ),
                                               ),
-                                              Text(
-                                                'Tahun Ini',
-                                                style: GoogleFonts.poppins(
-                                                    fontWeight:
-                                                        pemasukanSPP_pointer ==
-                                                                2
-                                                            ? FontWeight.w600
-                                                            : FontWeight.w400,
-                                                    color:
-                                                        pemasukanSPP_pointer ==
-                                                                2
-                                                            ? Colors.black
-                                                            : Colors
-                                                                .grey
-                                                                .withOpacity(
-                                                                    0.5),
-                                                    fontSize: 12),
+                                              TextButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    pemasukanSPP_pointer = 2;
+                                                  });
+                                                },
+                                                child: Text(
+                                                  'Tahun Ini',
+                                                  style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          pemasukanSPP_pointer ==
+                                                                  2
+                                                              ? FontWeight.w600
+                                                              : FontWeight.w400,
+                                                      color:
+                                                          pemasukanSPP_pointer ==
+                                                                  2
+                                                              ? Colors.black
+                                                              : Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                      fontSize: 12),
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -602,7 +694,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               alignment: MainAxisAlignment.center,
               percent: persentaseLunasSPP / 100,
               backgroundColor: Colors.grey.withOpacity(0.4),
-              progressColor: getGradientColor(persentaseLunasSPP),
+              progressColor: getGradientColor(persentaseLunasSPP / 100),
             ),
           ),
         ),
@@ -692,19 +784,46 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
     );
   }
+
+  Future<void> getOtherAsynchronusData() async {
+    List<PembayaranObject_6BulanTerakhir> dataPembayaran =
+        await Pembayaran_6BulanTerakhirClass.getPembayaranTahunIni();
+    print('bulan ini ${dataPembayaran[dataPembayaran.length - 1].bulan}');
+    pemasukanSPP[0] = (dataPembayaran[dataPembayaran.length - 1].santriLunas *
+            dataPembayaran[dataPembayaran.length - 1].nominal!)
+        .round()
+        .toInt();
+
+    int index = dataPembayaran.length - 1;
+    int pemasukan = 0;
+
+    for (int index = dataPembayaran.length - 1; index > 0; index--) {
+      print(dataPembayaran[index].bulan);
+      pemasukan =
+          (dataPembayaran[index].santriLunas * dataPembayaran[index].nominal!)
+              .round()
+              .toInt();
+      if (index > dataPembayaran.length - 3) {
+        print('masuk');
+        pemasukanSPP[1] += pemasukan;
+      }
+      pemasukanSPP[2] += pemasukan;
+    }
+
+    setState(() {
+      print(pemasukanSPP);
+    });
+  }
 }
 
 Color getGradientColor(double value) {
-  List<Color> colors = [
-    Colors.redAccent,
-    Colors.orangeAccent,
-    Colors.greenAccent
-  ];
+  if (value >= 1) return Colors.green;
 
+  List<Color> colors = [Colors.redAccent, Colors.orangeAccent, Colors.green];
   List<double> stops = [0.0, 0.66, 1.0];
 
   // Map the value to a range between 0 and 1
-  double normalizedValue = value / 100;
+  double normalizedValue = value;
 
   // Interpolate the gradient color based on the normalized value
   int index = (normalizedValue * (stops.length - 1)).floor();
