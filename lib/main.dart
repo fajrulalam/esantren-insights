@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'Screens/LoginPage.dart';
 import 'Screens/WidgetTree.dart';
 import 'firebase_options.dart';
 
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
       initialRoute: WidgetTree.id,
       routes: {
         WidgetTree.id: (context) => WidgetTree(),
+        LoginScreen.id: (context) => LoginScreen(),
       },
     );
   }

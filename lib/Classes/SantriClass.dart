@@ -9,7 +9,9 @@ class SantriClass {
     //check if the document
     snapshot.docs.forEach((data1) {
       Map data_map = data1.data() as Map<String, dynamic>;
+
       SantriObject santriObject = SantriObject(
+        id: data1.id,
         absenNgaji: data_map['absenNgaji'] ?? "Alfa",
         alamat: data_map['alamat'] ?? "",
         jenisKelamin: data_map['jenisKelamin'] ?? "",
@@ -27,8 +29,10 @@ class SantriClass {
         statusAktif: data_map['statusAktif'] ?? "",
         statusKehadiran: data_map['statusKehadiran'] ?? "",
         tglLahir: data_map['tglLahir'] ?? "",
-        tglMasuk: data_map['tglMasuk'].toDate(),
+        tglMasuk: data_map['tglMasuk'],
         unitSekolah: data_map['unitSekolah'] ?? "",
+        statusKepulangan: data_map['statusKepulangan'] ?? {},
+        statusKesehatan: data_map['statusKesehatan'] ?? {},
       );
 
       allSantriList.add(santriObject);

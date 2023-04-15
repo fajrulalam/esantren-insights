@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class SantriObject {
+  String id;
   String absenNgaji;
   String alamat;
   String jenisKelamin;
@@ -16,10 +19,13 @@ class SantriObject {
   String statusAktif;
   String statusKehadiran;
   String tglLahir;
-  DateTime tglMasuk;
+  Timestamp tglMasuk;
   String unitSekolah;
+  Map<String, dynamic> statusKesehatan;
+  Map<String, dynamic> statusKepulangan;
 
   SantriObject({
+    required this.id,
     required this.absenNgaji,
     required this.alamat,
     required this.jenisKelamin,
@@ -39,5 +45,7 @@ class SantriObject {
     required this.tglLahir,
     required this.tglMasuk,
     required this.unitSekolah,
+    required this.statusKesehatan,
+    required this.statusKepulangan,
   });
 }

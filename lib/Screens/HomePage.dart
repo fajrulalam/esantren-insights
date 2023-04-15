@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:esantren_insights_v1/BottomSheets/DetailPembayaran_BS.dart';
+import 'package:esantren_insights_v1/Classes/PelunasanClass.dart';
 import 'package:esantren_insights_v1/Classes/PembayaranClass.dart';
+import 'package:esantren_insights_v1/Objects/AsramaObject.dart';
+import 'package:esantren_insights_v1/Objects/PelunasanObject.dart';
 import 'package:esantren_insights_v1/Objects/PembayaranObject.dart';
+import 'package:esantren_insights_v1/Widgets/LoaderWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,8 +15,12 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../BottomSheets/DetailSantri_BS.dart';
+import '../Classes/AsramaClass.dart';
+import '../Classes/CurrentUserClass.dart';
 import '../Classes/DataHomePageClass.dart';
 import '../Classes/SantriClass.dart';
+import '../Objects/CurrentUserObject.dart';
 import '../Objects/DataHomePageObject.dart';
 import '../Objects/SantriObject.dart';
 
@@ -23,9 +32,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  late CurrentUserObject _userObject = CurrentUserObject();
+
   int _selectedIndex = 0;
 
-  int jumlahKelas = 1;
+  // int jumlahKelas = 18;
   int jumlahKelasAbsenHariIni = 1;
   late double persentasePembayarSPP = 1;
   late double persentaseLunasSPP = 1;
@@ -33,6 +44,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<int> pemasukanSPP = [0, 0, 0];
   List<PembayaranObject_6BulanTerakhir> chartData = [];
   List<SantriObject> semuaSantriAktif = [];
+  AsramaObject asramaDetail = AsramaObject(
+      kelasNgaji: ['a', 'b'],
+      id: 'id',
+      pengasuh: ['a', 'b'],
+      didirikanPada: 2000,
+      lokasiGeografis: 'lokasiGeografis',
+      namaAsrama: 'namaAsrama',
+      pathFotoAsrama: 'pathFotoAsrama',
+      profilSingkat: 'profilSingkat',
+      program: ['a']);
   late DataHomePageObject dataHomePageObject = DataHomePageObject(
       jumlahSantriAktif: 0,
       jumlahSantriAda: 0,
@@ -41,27 +62,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       jumlahSantriHadirNgaji: 0,
       jumlahLunasSPP: 0);
 
-  Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
-      .collection('SantriCollection')
-      .where('statusAktif', isEqualTo: 'Aktif')
-      .snapshots();
+  Future<void> getUserDetails() async {
+    _userObject = await CurrentUserClass().getUserDetail();
+    Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
+        .collection('SantriCollection')
+        .where('statusAktif', isEqualTo: 'Aktif')
+        .snapshots();
 
-  Stream<QuerySnapshot> _invoiceStream = FirebaseFirestore.instance
-      .collection('InvoiceCollection')
-      .where('kodeAsrama', isEqualTo: 'DU15_AlFalah')
-      .orderBy('tglInvoice', descending: true)
-      .limit(12)
-      .snapshots();
+    Stream<QuerySnapshot> _invoiceStream = FirebaseFirestore.instance
+        .collection('InvoiceCollection')
+        .where('kodeAsrama', isEqualTo: _userObject.kodeAsrama)
+        .orderBy('tglInvoice', descending: true)
+        .limit(12)
+        .snapshots();
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
     _santriStream.listen((QuerySnapshot snapshot) {
       semuaSantriAktif = SantriClass.getSantriList(snapshot);
       dataHomePageObject = DataHomePageClass.getDataHomePage(snapshot);
 
-      getOtherAsynchronusData();
+      getPemasukanSPP();
       setState(() {
         persentasePembayarSPP = dataHomePageObject.jumlahLunasSPP /
             dataHomePageObject.jumlahSantriAktif *
@@ -76,6 +95,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       chartData =
           Pembayaran_6BulanTerakhirClass.getPembayaran6BulanTerakhir(snapshot);
     });
+
+    asramaDetail = await AsramaClass.getAsramaDetail(_userObject.kodeAsrama!);
+    print(asramaDetail.namaAsrama);
+    print(asramaDetail.lokasiGeografis);
+    print(asramaDetail.profilSingkat);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUserDetails();
   }
 
   @override
@@ -204,7 +235,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             .jumlahSantriAktif),
                                     AbsenNgajiCard(context,
                                         title: 'Jumlah Absensi Kelas',
-                                        total: jumlahKelas,
+                                        total: asramaDetail.kelasNgaji.length,
                                         subset: jumlahKelasAbsenHariIni)
                                   ],
                                 ),
@@ -591,7 +622,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         selectedItemColor: Colors.black,
         backgroundColor: Colors.white,
         elevation: 2,
-        onTap: (index) {
+        onTap: (index) async {
           setState(() {
             _selectedIndex = index;
           });
@@ -624,12 +655,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               children: [
                 DetailSantri(context,
                     angka: dataHomePageObject.jumlahSantriAda,
-                    keterangan: "Ada"),
+                    keterangan: "Ada",
+                    allSantri: semuaSantriAktif),
                 DetailSantri(context,
+                    allSantri: semuaSantriAktif,
                     angka: dataHomePageObject.jumlahSantriIzin,
                     keterangan: "Izin",
                     isMiddle: true),
                 DetailSantri(context,
+                    allSantri: semuaSantriAktif,
                     angka: dataHomePageObject.jumlahSantriSakit,
                     keterangan: "Sakit"),
               ],
@@ -644,87 +678,104 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     //make a color gradient for the progress bar. it depends on the persentase lunas spp, from red accent, orange accent, yellow accent, green accent
 
     Color progressBarColor = Colors.green;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(height: 8),
-        Text('Persentase Pelunasan SPP Bulan Ini',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600, color: Colors.grey)),
-        SizedBox(height: 8),
-        Text('${persentaseLunasSPP.toStringAsFixed(1)}%',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
-                fontSize: 36)),
-        Container(
-          child: Center(
-            child: LinearPercentIndicator(
-              width: MediaQuery.of(context).size.width * 0.5,
-              lineHeight: 4.0,
-              animation: true,
-              animationDuration: 2000,
-              alignment: MainAxisAlignment.center,
-              percent: persentaseLunasSPP / 100,
-              backgroundColor: Colors.grey.withOpacity(0.4),
-              progressColor: getGradientColor(persentaseLunasSPP / 100),
+    return InkWell(
+      onTap: () async {
+        LoaderWidget.showLoader(context);
+        List<SantriObject> listSantriBelumLunas = semuaSantriAktif
+            .where((element) => element.lunasSPP == false)
+            .toList();
+        List<PelunasanObject> pelunasanObject =
+            await PelunasanClass.getDaftarPelunasan(listSantriBelumLunas);
+        List<SantriObject> listSantriSudahLunas = semuaSantriAktif
+            .where((element) => element.lunasSPP == true)
+            .toList();
+        Navigator.pop(context);
+        detailPembayaranBottomSheet(context,
+            santriSudahLunas: listSantriSudahLunas,
+            santriBelumLunas: pelunasanObject);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(height: 8),
+          Text('Persentase Pelunasan SPP Bulan Ini',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600, color: Colors.grey)),
+          SizedBox(height: 8),
+          Text('${persentaseLunasSPP.toStringAsFixed(1)}%',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                  fontSize: 36)),
+          Container(
+            child: Center(
+              child: LinearPercentIndicator(
+                width: MediaQuery.of(context).size.width * 0.5,
+                lineHeight: 4.0,
+                animation: true,
+                animationDuration: 2000,
+                alignment: MainAxisAlignment.center,
+                percent: persentaseLunasSPP / 100,
+                backgroundColor: Colors.grey.withOpacity(0.4),
+                progressColor: getGradientColor(persentaseLunasSPP / 100),
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 8),
-        Text.rich(TextSpan(
-            text: '',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.normal, color: Colors.grey),
-            children: [
-              if (persentaseLunasSPP < 50)
+          SizedBox(height: 8),
+          Text.rich(TextSpan(
+              text: '',
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.normal, color: Colors.grey),
+              children: [
+                if (persentaseLunasSPP < 50)
+                  TextSpan(
+                      text: 'Masih hanya ',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400, fontSize: 12))
+                else if (persentaseLunasSPP < 90 && persentaseLunasSPP >= 50)
+                  TextSpan(
+                      text: 'Sebanyak ',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400, fontSize: 12))
+                else if (persentaseLunasSPP >= 90)
+                  TextSpan(
+                      text: 'Sudah ',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400, fontSize: 12)),
+                if (persentaseLunasSPP < 50)
+                  TextSpan(
+                      text:
+                          '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.redAccent,
+                          fontSize: 12))
+                else if (persentaseLunasSPP < 90 && persentaseLunasSPP >= 50)
+                  TextSpan(
+                      text:
+                          '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.orangeAccent,
+                          fontSize: 12))
+                else if (persentaseLunasSPP >= 90)
+                  TextSpan(
+                      text:
+                          '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.green,
+                          fontSize: 12)),
                 TextSpan(
-                    text: 'Masih hanya ',
+                    text: ' yang lunas SPP bulan ini',
                     style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w400, fontSize: 12))
-              else if (persentaseLunasSPP < 90 && persentaseLunasSPP >= 50)
-                TextSpan(
-                    text: 'Sebanyak ',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w400, fontSize: 12))
-              else if (persentaseLunasSPP >= 90)
-                TextSpan(
-                    text: 'Sudah ',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w400, fontSize: 12)),
-              if (persentaseLunasSPP < 50)
-                TextSpan(
-                    text:
-                        '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey,
                         fontSize: 12))
-              else if (persentaseLunasSPP < 90 && persentaseLunasSPP >= 50)
-                TextSpan(
-                    text:
-                        '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.orangeAccent,
-                        fontSize: 12))
-              else if (persentaseLunasSPP >= 90)
-                TextSpan(
-                    text:
-                        '${dataHomePageObject.jumlahLunasSPP}/${dataHomePageObject.jumlahSantriAktif} santri',
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.green,
-                        fontSize: 12)),
-              TextSpan(
-                  text: ' yang lunas SPP bulan ini',
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey,
-                      fontSize: 12))
-            ])),
-      ],
+              ])),
+        ],
+      ),
     );
   }
 
@@ -762,10 +813,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> getOtherAsynchronusData() async {
+  Future<void> getPemasukanSPP() async {
     pemasukanSPP = [0, 0, 0];
     List<PembayaranObject_6BulanTerakhir> dataPembayaran =
-        await Pembayaran_6BulanTerakhirClass.getPembayaranTahunIni();
+        await Pembayaran_6BulanTerakhirClass.getPembayaranTahunIni(_userObject);
     print('bulan ini ${dataPembayaran[dataPembayaran.length - 1].bulan}');
     pemasukanSPP[0] = (dataPembayaran[dataPembayaran.length - 1].santriLunas *
             dataPembayaran[dataPembayaran.length - 1].nominal!)
@@ -817,7 +868,10 @@ Color getGradientColor(double value) {
 }
 
 Widget DetailSantri(BuildContext context,
-    {required int angka, required String keterangan, bool? isMiddle}) {
+    {required int angka,
+    required String keterangan,
+    bool? isMiddle,
+    required List<SantriObject> allSantri}) {
   Color color;
 
   switch (keterangan) {
@@ -835,27 +889,34 @@ Widget DetailSantri(BuildContext context,
       break;
   }
 
-  return Container(
-    width: MediaQuery.of(context).size.width / 4.5,
-    padding: EdgeInsets.only(left: 8, right: 8),
-    decoration: BoxDecoration(
-        border: isMiddle == true
-            ? Border()
-            : Border.symmetric(
-                vertical: BorderSide(color: Colors.grey.shade300, width: 0.7))),
-    child: Column(
-      children: [
-        Text(
-          keterangan,
-          style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600, color: color, fontSize: 14),
-        ),
-        Text(
-          angka.toString(),
-          style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w400, color: color, fontSize: 14),
-        ),
-      ],
+  return InkWell(
+    onTap: () {
+      detailSantriBottomSheet(context,
+          keterangan: keterangan, allSantri: allSantri);
+    },
+    child: Container(
+      width: MediaQuery.of(context).size.width / 4.5,
+      padding: EdgeInsets.only(left: 8, right: 8),
+      decoration: BoxDecoration(
+          border: isMiddle == true
+              ? Border()
+              : Border.symmetric(
+                  vertical:
+                      BorderSide(color: Colors.grey.shade300, width: 0.7))),
+      child: Column(
+        children: [
+          Text(
+            keterangan,
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600, color: color, fontSize: 14),
+          ),
+          Text(
+            angka.toString(),
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400, color: color, fontSize: 14),
+          ),
+        ],
+      ),
     ),
   );
 }

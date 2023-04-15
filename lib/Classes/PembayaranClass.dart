@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../Objects/CurrentUserObject.dart';
 import '../Objects/PembayaranObject.dart';
 
 class Pembayaran_6BulanTerakhirClass {
@@ -26,8 +27,8 @@ class Pembayaran_6BulanTerakhirClass {
     return chartData;
   }
 
-  static Future<List<PembayaranObject_6BulanTerakhir>>
-      getPembayaranTahunIni() async {
+  static Future<List<PembayaranObject_6BulanTerakhir>> getPembayaranTahunIni(
+      CurrentUserObject currentUserObject) async {
     List<PembayaranObject_6BulanTerakhir> chartData = [];
 
     Timestamp firstDayOfCurrentYear =
@@ -37,6 +38,7 @@ class Pembayaran_6BulanTerakhirClass {
 
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('InvoiceCollection')
+        .where('kodeAsrama', isEqualTo: currentUserObject.kodeAsrama)
         .where('tglInvoice', isGreaterThan: firstDayOfCurrentYear)
         .orderBy('tglInvoice', descending: false)
         .limit(12)
