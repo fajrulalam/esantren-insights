@@ -16,12 +16,15 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../BottomSheets/DetailSantri_BS.dart';
+import '../BottomSheets/KelasNgajiDetail_BS.dart';
 import '../Classes/AsramaClass.dart';
 import '../Classes/CurrentUserClass.dart';
 import '../Classes/DataHomePageClass.dart';
+import '../Classes/KelasNgajiClass.dart';
 import '../Classes/SantriClass.dart';
 import '../Objects/CurrentUserObject.dart';
 import '../Objects/DataHomePageObject.dart';
+import '../Objects/KelasNgajiObject.dart';
 import '../Objects/SantriObject.dart';
 
 class HomePage extends StatefulWidget {
@@ -44,6 +47,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<int> pemasukanSPP = [0, 0, 0];
   List<PembayaranObject_6BulanTerakhir> chartData = [];
   List<SantriObject> semuaSantriAktif = [];
+  List<KelasNgajiObject> semuaKelasNgaji = [];
   AsramaObject asramaDetail = AsramaObject(
       kelasNgaji: ['a', 'b'],
       id: 'id',
@@ -64,6 +68,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> getUserDetails() async {
     _userObject = await CurrentUserClass().getUserDetail();
+    asramaDetail = await AsramaClass.getAsramaDetail(_userObject.kodeAsrama!);
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+
     Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
         .collection('SantriCollection')
         .where('statusAktif', isEqualTo: 'Aktif')
@@ -75,6 +83,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         .orderBy('tglInvoice', descending: true)
         .limit(12)
         .snapshots();
+
+    Stream<QuerySnapshot> _kelasNgajiStream = FirebaseFirestore.instance
+        .collection('AktivitasCollection')
+        .doc(_userObject.kodeAsrama)
+        .collection('AbsenNgajiLogs')
+        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
+        .snapshots();
+
+    _kelasNgajiStream.listen((QuerySnapshot snapshot) {
+      semuaKelasNgaji = KelasNgajiClass.getKelasNgajiDetail(
+          snapshot, asramaDetail.kelasNgaji);
+      setState(() {
+        print('SEMUA KELAS NGAJI ${semuaKelasNgaji.length}');
+      });
+    });
 
     _santriStream.listen((QuerySnapshot snapshot) {
       semuaSantriAktif = SantriClass.getSantriList(snapshot);
@@ -96,7 +119,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Pembayaran_6BulanTerakhirClass.getPembayaran6BulanTerakhir(snapshot);
     });
 
-    asramaDetail = await AsramaClass.getAsramaDetail(_userObject.kodeAsrama!);
     print(asramaDetail.namaAsrama);
     print(asramaDetail.lokasiGeografis);
     print(asramaDetail.profilSingkat);
@@ -229,11 +251,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   children: [
                                     AbsenNgajiCard(context,
                                         title: 'Kehadiran Ngaji Hari Ini',
+                                        semuaKelasNgaji: semuaKelasNgaji,
                                         subset: dataHomePageObject
                                             .jumlahSantriHadirNgaji,
                                         total: dataHomePageObject
                                             .jumlahSantriAktif),
                                     AbsenNgajiCard(context,
+                                        semuaKelasNgaji: semuaKelasNgaji,
                                         title: 'Jumlah Absensi Kelas',
                                         total: asramaDetail.kelasNgaji.length,
                                         subset: jumlahKelasAbsenHariIni)
@@ -780,35 +804,45 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget AbsenNgajiCard(BuildContext context,
-      {required String title, required int subset, required int total}) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
-          ),
-          Expanded(
-            child: Center(
-              child: Text.rich(TextSpan(
-                  text: '$subset',
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black87,
-                      fontSize: 24),
-                  children: [
-                    TextSpan(
-                        text: ' / $total',
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey,
-                            fontSize: 16))
-                  ])),
+      {required String title,
+      required int subset,
+      required int total,
+      required List<KelasNgajiObject> semuaKelasNgaji}) {
+    return InkWell(
+      onTap: () {
+        detailKelasNgajiBottomSheet(context, semuaKelasNgaji: semuaKelasNgaji);
+      },
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Colors.grey),
             ),
-          ),
-        ],
+            Expanded(
+              child: Center(
+                child: Text.rich(TextSpan(
+                    text: '$subset',
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                        fontSize: 24),
+                    children: [
+                      TextSpan(
+                          text: ' / $total',
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              color: Colors.grey,
+                              fontSize: 16))
+                    ])),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
