@@ -20,7 +20,6 @@ class KelasNgajiClass {
           adaAbsensi: false,
           timestamp: Timestamp.now()));
     }
-
     int index;
     for (int i = 0; i < snapshot.docs.length; i++) {
       String id = snapshot.docs[i].id;

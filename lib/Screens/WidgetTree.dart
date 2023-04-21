@@ -20,6 +20,7 @@ class _WidgetTreeState extends State<WidgetTree> {
       stream: Auth().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          print('user is logged in');
           return FutureBuilder(
             future: checkIfUserIsVerified(),
             builder: (context, AsyncSnapshot<bool> snapshot) {
@@ -32,6 +33,7 @@ class _WidgetTreeState extends State<WidgetTree> {
             },
           );
         } else {
+          print('user is not logged in');
           return LoginScreen();
         }
       },
@@ -39,8 +41,10 @@ class _WidgetTreeState extends State<WidgetTree> {
   }
 
   Future<bool> checkIfUserIsVerified() async {
+    print("getting user detail");
     CurrentUserObject userDetail = await CurrentUserClass().getUserDetail();
-    if (userDetail.role == 'Admin' || userDetail.role == 'Pengasuh') {
+    print(userDetail.role);
+    if (userDetail.role == 'Admin' || userDetail.role == 'Asrama') {
       return true;
     } else {
       return false;

@@ -5,6 +5,8 @@ class DataHomePageObject {
   int jumlahSantriSakit;
   int jumlahSantriHadirNgaji;
   int jumlahLunasSPP;
+  // int jumlahKelasHariIni;
+  // double persentaseLunasSPP;
 
   DataHomePageObject(
       {required this.jumlahSantriAktif,
