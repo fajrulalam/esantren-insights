@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late double persentaseLunasSPP = 1;
 
   AsramaObject asramaDetail = AsramaObject(
+      listFoto: [],
       kelasNgaji: ['a', 'b'],
       id: 'id',
       pengasuh: ['a', 'b'],
@@ -203,7 +204,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       //   // // } else if (_selectedIndex == 2) {
       //   //   // return Asrama();
     } else if (_selectedIndex == 2) {
-      return SettingAsrama(userObject: _userObject);
+      return SettingAsrama(userObject: _userObject, asramaDetail: asramaDetail);
     } else {
       // LoaderWidget.showLoader(context);
       return Center(child: CircularProgressIndicator());

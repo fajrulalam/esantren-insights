@@ -9,7 +9,7 @@ class UserSettings extends StatelessWidget {
   String setting;
   String currentData;
   String uid;
-  final Function() notifyParent;
+  final Function(String) notifyParent;
   bool isLocked;
 
   UserSettings(this.setting, this.currentData, this.uid, this.isLocked,
@@ -57,8 +57,9 @@ class UserSettings extends StatelessWidget {
                     child: Container(
                       child: Text(
                         currentData,
-                        style:
-                            GoogleFonts.poppins(fontWeight: FontWeight.normal),
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black54),
                       ),
                     ),
                   ),

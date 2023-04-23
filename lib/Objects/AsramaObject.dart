@@ -1,13 +1,14 @@
 class AsramaObject {
   final String id;
-  final List<dynamic> pengasuh;
+  List<dynamic> pengasuh;
   final int didirikanPada;
   final String lokasiGeografis;
-  final String namaAsrama;
-  final String pathFotoAsrama;
-  final String profilSingkat;
-  final List<dynamic> program;
+  String namaAsrama;
+  String pathFotoAsrama;
+  String profilSingkat;
+  List<dynamic> program;
   final List<dynamic> kelasNgaji;
+  final List<dynamic> listFoto;
 
   AsramaObject(
       {required this.id,
@@ -18,5 +19,6 @@ class AsramaObject {
       required this.pathFotoAsrama,
       required this.profilSingkat,
       required this.kelasNgaji,
-      required this.program});
+      required this.program,
+      required this.listFoto});
 }

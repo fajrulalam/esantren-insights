@@ -7,6 +7,7 @@ class AsramaClass {
     //query data from a firebase document where kodeAsrama = kodeAsrama
     FirebaseFirestore db = FirebaseFirestore.instance;
     AsramaObject asramaDetail = AsramaObject(
+      listFoto: [],
         kelasNgaji: [],
         id: 'id',
         pengasuh: ['a', 'b'],
@@ -31,6 +32,7 @@ class AsramaClass {
       String pathFotoAsrama = value.get("pathFotoAsrama").toString();
       List<dynamic> program = value.get("program");
       List<dynamic> kelasNgaji = value.get("kelasNgaji");
+      List<dynamic> listFoto = value.get("listFoto");
       asramaDetail = AsramaObject(
           id: id,
           namaAsrama: namaAsrama,
@@ -40,7 +42,9 @@ class AsramaClass {
           profilSingkat: profilSingkat,
           pathFotoAsrama: pathFotoAsrama,
           kelasNgaji: kelasNgaji,
-          program: program);
+          program: program,
+      listFoto: listFoto
+      );
     });
 
     return asramaDetail;

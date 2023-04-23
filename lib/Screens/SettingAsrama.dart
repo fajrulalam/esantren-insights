@@ -1,32 +1,38 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esantren_insights_v1/Objects/AsramaObject.dart';
 import 'package:esantren_insights_v1/Objects/CurrentUserObject.dart';
 import 'package:esantren_insights_v1/Screens/ProfilAsrama.dart';
+import 'package:esantren_insights_v1/Services/UpdateEntireDocuments.dart';
+import 'package:esantren_insights_v1/Widgets/LoaderWidget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../Services/Authentication.dart';
 import '../Services/CustomPageRouteAnimation.dart';
+import 'InvoiceBaru.dart';
 import 'PengaturanAkun_Edit.dart';
 
 class SettingAsrama extends StatelessWidget {
   final CurrentUserObject userObject;
+  final AsramaObject asramaDetail;
 
-  const SettingAsrama({Key? key, required this.userObject}) : super(key: key);
+  const SettingAsrama(
+      {Key? key, required this.userObject, required this.asramaDetail})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<String> images = [
-      'https://instagram.fsub8-2.fna.fbcdn.net/v/t51.2885-15/336938993_651619936974045_8726345547016895210_n.jpg?stp=dst-jpg_e35&_nc_ht=instagram.fsub8-2.fna.fbcdn.net&_nc_cat=109&_nc_ohc=0onokId5XzoAX8_if_V&edm=ACWDqb8BAAAA&ccb=7-5&ig_cache_key=MzA2MzQzNTg2MTQ0Njg5Njg2NA%3D%3D.2-ccb7-5&oh=00_AfCWOlsz42xclKRz_eLZs8DocYoCTWlTCC2SJkqGSYidMA&oe=64464F79&_nc_sid=1527a3',
-      'https://firebasestorage.googleapis.com/v0/b/e-santren.appspot.com/o/fotoAsrama%2FDU15_AlFalah%2F93761784_219180412645238_7880146869132381624_n.jpg?alt=media&token=06adddac-9d6b-4bdd-b94f-db915ffa13b2',
-      'https://firebasestorage.googleapis.com/v0/b/e-santren.appspot.com/o/fotoAsrama%2FDU15_AlFalah%2F119882119_763492927557577_1523352540989159613_n.jpg?alt=media&token=346298b2-6bb8-4022-9af4-2211283fd099',
-      'https://firebasestorage.googleapis.com/v0/b/e-santren.appspot.com/o/fotoAsrama%2FDU15_AlFalah%2F187651795_311304787296674_4376420471911140793_n.jpg?alt=media&token=d3658d7c-dbff-414c-bc1f-f71ad8c1ccec'
-    ];
+    List<dynamic> images = asramaDetail.listFoto;
+
     return Container(
         padding: EdgeInsets.all(20),
         child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             //make an image carousel that the user can swipe through. the images is from a network image in images
             children: [
               //Text for the asrama name
-
               Container(
                 height: 200,
                 child: PageView.builder(
@@ -55,19 +61,10 @@ class SettingAsrama extends StatelessWidget {
                     Material(
                       child: InkWell(
                         onTap: () {
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //   SnackBar(
-                          //     backgroundColor:
-                          //         Colors.deepOrangeAccent.withOpacity(1),
-                          //     duration: Duration(milliseconds: 1000),
-                          //     content: Text('Hubungi Admin untuk merubah ini',
-                          //         style: GoogleFonts.poppins()),
-                          //   ),
-                          // );
-
                           Navigator.of(context).push(CustomPageRoute(
                               child: ProfilAsrama(
                             currentUserObject: userObject,
+                            asramaDetail: asramaDetail,
                           )));
                         },
                         child: Padding(
@@ -113,25 +110,34 @@ class SettingAsrama extends StatelessWidget {
                   children: [
                     Divider(height: 1),
                     Material(
-                      child: InkWell(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor:
-                                  Colors.deepOrangeAccent.withOpacity(1),
-                              duration: Duration(milliseconds: 1000),
-                              content: Text('Hubungi Admin untuk merubah ini',
-                                  style: GoogleFonts.poppins()),
-                            ),
-                          );
-
-                          Navigator.of(context).push(CustomPageRoute(
-                              child: EditSetting(
-                                  'setting', 'currentData', 'uid', () {})));
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 18, horizontal: 18),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 18, horizontal: 18),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(CustomPageRoute(
+                                child: InvoiceBaru(
+                                    'Invoice Baru', '', userObject,
+                                    (String namaInvoice, int nominal) async {
+                              Navigator.pop(context);
+                              LoaderWidget.showLoader(context);
+                              int jumlahSantriAktif =
+                                  await UpdateEntireDocuments
+                                      .tambahInvoiceBaru();
+                              Map<String, dynamic> data = {
+                                'jumlahPembayar': 0,
+                                'jumlahSantriAktif': jumlahSantriAktif,
+                                'kodeAsrama': userObject.kodeAsrama,
+                                'nominal': nominal,
+                                'tglInvoice': DateTime.now()
+                              };
+                              await FirebaseFirestore.instance
+                                  .collection('InvoiceCollection')
+                                  .doc(namaInvoice)
+                                  .set(data);
+                              Navigator.pop(context);
+                            })));
+                          },
                           child: Row(
                             children: [
                               Expanded(
@@ -169,6 +175,7 @@ class SettingAsrama extends StatelessWidget {
               ),
               Container(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Divider(height: 1),
                     Material(
@@ -272,6 +279,25 @@ class SettingAsrama extends StatelessWidget {
                       ),
                     ),
                     Divider(height: 1),
+                    SizedBox(height: 24),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 24),
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              await Auth().signOut();
+                              // SignOut successful, navigate to the home screen
+                              Navigator.pushReplacementNamed(context, '/home');
+                            } on FirebaseAuthException catch (e) {
+                              if (e.code == 'user-not-found') {
+                                print('No user found for that email.');
+                              } else if (e.code == 'wrong-password') {
+                                print('Wrong password provided for that user.');
+                              }
+                            }
+                          },
+                          child: Text('Sign-Out')),
+                    )
                   ],
                 ),
               ),

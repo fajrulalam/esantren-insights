@@ -4,23 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-
 class EditSetting extends StatefulWidget {
   String setting;
   String current;
   String uid;
-  final Function() notifyParent;
+  final Function(String data) notifyParent;
 
   EditSetting(this.setting, this.current, this.uid, this.notifyParent);
 
   @override
-  State<EditSetting> createState() => _EditSettingState();
+  State<EditSetting> createState() => _EditSettingState(notifyParent);
 }
 
 class _EditSettingState extends State<EditSetting> {
   DateTime selectedDate = DateTime.now();
   String tglLahir = '';
   late TextEditingController controller;
+  final Function(String data) notifyParent;
+
+  _EditSettingState(this.notifyParent);
 
   @override
   void initState() {
@@ -34,7 +36,7 @@ class _EditSettingState extends State<EditSetting> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.setting),
-        leading: BackButton(
+        leading: const BackButton(
           color: Colors.grey,
         ),
       ),
@@ -48,34 +50,41 @@ class _EditSettingState extends State<EditSetting> {
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 3))
+                  offset: const Offset(0, 3))
             ]),
+        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 800),
         child: Column(
           children: [
             widget.setting != 'Tanggal Lahir'
                 ? Container(
-                    margin: EdgeInsets.symmetric(vertical: 64, horizontal: 24),
-                    child: TextFormField(
-                      controller: controller,
-                      style: GoogleFonts.poppins(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4),
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1))),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 64, horizontal: 24),
+                    child: SingleChildScrollView(
+                      child: TextFormField(
+                        maxLines: 7,
+                        minLines: 1,
+                        controller: controller,
+                        style: GoogleFonts.poppins(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 1))),
+                      ),
                     ),
                   )
                 : Container(
-                    margin: EdgeInsets.symmetric(vertical: 64, horizontal: 24),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 64, horizontal: 24),
                     child: TextFormField(
                       textInputAction: TextInputAction.next,
                       readOnly: true,
                       controller: controller,
                       decoration: InputDecoration(
                         labelText: 'Tanggal Lahir',
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                         suffix: GestureDetector(
-                          child: Icon(
+                          child: const Icon(
                             Icons.calendar_today,
                             size: 24,
                           ),
@@ -83,7 +92,7 @@ class _EditSettingState extends State<EditSetting> {
                             print('tapped');
                             // controllerNama.text = 'lol';
                             showDatePicker(
-                              locale: Locale('id'),
+                              locale: const Locale('id'),
                               context: context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(1900),
@@ -91,7 +100,7 @@ class _EditSettingState extends State<EditSetting> {
                               builder: (BuildContext context, Widget? child) {
                                 return Theme(
                                   data: ThemeData.light().copyWith(
-                                    colorScheme: ColorScheme.light(
+                                    colorScheme: const ColorScheme.light(
                                       primary: Colors.blue,
                                     ),
                                   ),
@@ -117,19 +126,19 @@ class _EditSettingState extends State<EditSetting> {
                       ),
                     ),
                   ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 12),
               child: ElevatedButton(
                   onPressed: () {
                     FocusScope.of(context).unfocus();
-                    updateData();
+                    // updateData();
+                    notifyParent(controller.text);
                   },
-                  child: Text('Simpan')),
+                  child: const Text('Simpan')),
             )
           ],
         ),
-        constraints: BoxConstraints(maxWidth: 800, maxHeight: 800),
       )),
     );
   }
@@ -142,8 +151,8 @@ class _EditSettingState extends State<EditSetting> {
         return AlertDialog(
           content: Row(
             children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
               Text("Menyimpan...",
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w700))
             ],
@@ -167,18 +176,18 @@ class _EditSettingState extends State<EditSetting> {
         fieldName = 'tglLahir';
         break;
     }
-    await fs
-        .collection('PengurusCollection')
-        .doc(widget.uid)
-        .update({fieldName: controller.text}).then((value) {
-      // Navigator.pop(context);
-      // Navigator.pop(context);
-      // Navigator.pushAndRemoveUntil(
-      //     context,
-      //     MaterialPageRoute(
-      //         builder: (BuildContext context) => HomePage('AccountSettings')),
-      //     ModalRoute.withName(WidgetTree.id));
-    });
+    // await fs
+    //     .collection('PengurusCollection')
+    //     .doc(widget.uid)
+    //     .update({fieldName: controller.text}).then((value) {
+    //   // Navigator.pop(context);
+    //   // Navigator.pop(context);
+    //   // Navigator.pushAndRemoveUntil(
+    //   //     context,
+    //   //     MaterialPageRoute(
+    //   //         builder: (BuildContext context) => HomePage('AccountSettings')),
+    //   //     ModalRoute.withName(WidgetTree.id));
+    // });
     // Navigator.pop(context);
   }
 }
