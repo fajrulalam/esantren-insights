@@ -82,4 +82,31 @@ class StorageServices {
   static deletePreviousImage(String url) {
     FirebaseStorage.instance.refFromURL(url).delete();
   }
+
+  static Future<String> uploadImagePengumuman(
+      XFile imageFile, CurrentUserObject currentUserObject) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    String snapshotURL = '';
+    String fileName = basename(imageFile.path);
+    //get this current year
+    String yearNow = DateFormat('yyyy').format(DateTime.now());
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference reference = storage.ref(
+        '/pengumumanAttachments/${currentUserObject.kodeAsrama}/$fileName');
+    UploadTask uploadTask;
+
+    if (kIsWeb) {
+      print('its in the web');
+      Uint8List imageData = await imageFile.readAsBytes();
+      uploadTask = reference.putData(imageData);
+    } else {
+      File file = File(imageFile.path);
+      uploadTask = reference.putFile(file);
+    }
+
+    // TaskSnapshot snapshot = await task.whenComplete(() {snapshotURL = await snapshot.ref.getDownloadURL()});
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+    snapshotURL = await snapshot.ref.getDownloadURL();
+    return snapshotURL;
+  }
 }

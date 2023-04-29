@@ -1,7 +1,9 @@
+import 'package:esantren_insights_v1/Screens/DataLengkapSantri.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'Objects/CurrentUserObject.dart';
 import 'Screens/LoginPage.dart';
 import 'Screens/WidgetTree.dart';
 import 'firebase_options.dart';
@@ -36,6 +38,10 @@ class MyApp extends StatelessWidget {
       locale: Locale('id'),
       initialRoute: WidgetTree.id,
       routes: {
+        DataLengkapSantri.id: (context) => DataLengkapSantri(
+              userObject: ModalRoute.of(context)!.settings.arguments
+                  as CurrentUserObject,
+            ),
         WidgetTree.id: (context) => WidgetTree(),
         LoginScreen.id: (context) => LoginScreen(),
       },

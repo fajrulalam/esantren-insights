@@ -17,6 +17,7 @@ class SantriClass {
         jenisKelamin: data_map['jenisKelamin'] ?? "",
         jenjangPendidikan: data_map['jenjangPendidikan'] ?? "",
         kamar: data_map['kamar'] ?? "",
+        kodeAsrama: data_map['kodeAsrama'] ?? "",
         kelas: data_map['kelas'] ?? "",
         kelasNgaji: data_map['kelasNgaji'] ?? "",
         kotaAsal: data_map['kotaAsal'] ?? "",

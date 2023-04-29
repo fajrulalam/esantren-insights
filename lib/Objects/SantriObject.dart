@@ -20,6 +20,7 @@ class SantriObject {
   String statusKehadiran;
   String tglLahir;
   Timestamp tglMasuk;
+  String kodeAsrama;
   String unitSekolah;
   Map<String, dynamic> statusKesehatan;
   Map<String, dynamic> statusKepulangan;
@@ -31,6 +32,7 @@ class SantriObject {
     required this.jenisKelamin,
     required this.jenjangPendidikan,
     required this.kamar,
+    required this.kodeAsrama,
     required this.kelas,
     required this.kelasNgaji,
     required this.kotaAsal,

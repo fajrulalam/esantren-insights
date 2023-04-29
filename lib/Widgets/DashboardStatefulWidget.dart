@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esantren_insights_v1/Objects/CurrentUserObject.dart';
 import 'package:esantren_insights_v1/Objects/DataHomePageObject.dart';
+import 'package:esantren_insights_v1/Screens/DataLengkapSantri.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -513,32 +514,38 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
                 ),
                 Expanded(
                   flex: 3,
-                  child: Card(
-                    elevation: 2,
-                    child: Container(
-                      color: Colors.blueGrey.shade50,
-                      padding: EdgeInsets.all(12),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Center(
-                              child: Image.asset('assets/team.png',
-                                  height: MediaQuery.of(context).size.height *
-                                      0.07),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, DataLengkapSantri.id,
+                          arguments: userObject);
+                    },
+                    child: Card(
+                      elevation: 2,
+                      child: Container(
+                        color: Colors.blueGrey.shade50,
+                        padding: EdgeInsets.all(12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Image.asset('assets/team.png',
+                                    height: MediaQuery.of(context).size.height *
+                                        0.07),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Data Lengkap Santri',
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                                fontSize: 16),
-                          ),
-                        ],
+                            SizedBox(height: 8),
+                            Text(
+                              'Data Lengkap Santri',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey,
+                                  fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        // add your card widget content here
                       ),
-                      // add your card widget content here
                     ),
                   ),
                 ),
@@ -787,6 +794,7 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
 
     Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
         .collection('SantriCollection')
+        .where('kodeAsrama', isEqualTo: userObject.kodeAsrama)
         .where('statusAktif', isEqualTo: 'Aktif')
         .snapshots();
 

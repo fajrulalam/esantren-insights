@@ -31,6 +31,7 @@ import '../Objects/KelasNgajiObject.dart';
 import '../Objects/SantriObject.dart';
 import '../Services/Authentication.dart';
 import '../Widgets/DashboardWidget.dart';
+import 'Pengumuman.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,61 +78,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     setState(() {
       _selectedIndex = 0;
     });
-
-    // Stream<QuerySnapshot> _santriStream = FirebaseFirestore.instance
-    //     .collection('SantriCollection')
-    //     .where('statusAktif', isEqualTo: 'Aktif')
-    //     .snapshots();
-    //
-    // Stream<QuerySnapshot> _invoiceStream = FirebaseFirestore.instance
-    //     .collection('InvoiceCollection')
-    //     .where('kodeAsrama', isEqualTo: _userObject.kodeAsrama)
-    //     .orderBy('tglInvoice', descending: true)
-    //     .limit(12)
-    //     .snapshots();
-    //
-    // Stream<QuerySnapshot> _kelasNgajiStream = FirebaseFirestore.instance
-    //     .collection('AktivitasCollection')
-    //     .doc(_userObject.kodeAsrama)
-    //     .collection('AbsenNgajiLogs')
-    //     .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
-    //     .snapshots();
-    //
-    // _kelasNgajiStream.listen((QuerySnapshot snapshot) {
-    //   semuaKelasNgaji = KelasNgajiClass.getKelasNgajiDetail(
-    //       snapshot, asramaDetail.kelasNgaji);
-    //   setState(() {
-    //     List<KelasNgajiObject> semuaKelasAktif = semuaKelasNgaji
-    //         .where((element) => element.adaAbsensi == true)
-    //         .toList();
-    //     // jumlahKelasAbsenHariIni = semuaKelasAktif.length;
-    //   });
-    // });
-    //
-    // _santriStream.listen((QuerySnapshot snapshot) async {
-    //   semuaSantriAktif = SantriClass.getSantriList(snapshot);
-    //   dataHomePageObject = DataHomePageClass.getDataHomePage(snapshot);
-    //
-    //   await getPemasukanSPP();
-    //   setState(() {
-    //     // persentasePembayarSPP = dataHomePageObject.jumlahLunasSPP /
-    //     //     dataHomePageObject.jumlahSantriAktif *
-    //     //     100;
-    //     persentaseLunasSPP = dataHomePageObject.jumlahLunasSPP /
-    //         dataHomePageObject.jumlahSantriAktif *
-    //         100;
-    //   });
-    // });
-    //
-    // _invoiceStream.listen((QuerySnapshot snapshot) {
-    //   chartData =
-    //       Pembayaran_6BulanTerakhirClass.getPembayaran6BulanTerakhir(snapshot);
-    //   _selectedIndex = 0;
-    // });
-    //
-    // print(asramaDetail.namaAsrama);
-    // print(asramaDetail.lokasiGeografis);
-    // print(asramaDetail.profilSingkat);
   }
 
   @override
@@ -199,10 +145,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         userObject: _userObject,
         asramaDetail: asramaDetail,
       );
-      //   // // } else if (_selectedIndex == 1) {
-      //   // //   // return Pengumuman();
-      //   // // } else if (_selectedIndex == 2) {
-      //   //   // return Asrama();
+    } else if (_selectedIndex == 1) {
+      return Pengumuman(userObject: _userObject);
     } else if (_selectedIndex == 2) {
       return SettingAsrama(userObject: _userObject, asramaDetail: asramaDetail);
     } else {
