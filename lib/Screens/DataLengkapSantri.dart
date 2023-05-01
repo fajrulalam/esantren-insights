@@ -43,6 +43,9 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
     return Scaffold(
       appBar: AppBar(
         title: Text('Data Lengkap Santri'),
+        leading: const BackButton(
+          color: Colors.grey,
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -328,31 +331,11 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
                                 height: 5,
                               ),
                               Text(
-                                '${semuaSantriAlumni[index].tglMasuk.toDate().year} -  sekarang (${semuaSantriAlumni[index].kelas})',
+                                '${semuaSantriTidakLulus[index].tglMasuk.toDate().year} -  ${getMonth(semuaSantriTidakLulus[index].tglKeluar.toDate().month.toString())} ${semuaSantriTidakLulus[index].tglKeluar.toDate().year}',
                                 style: GoogleFonts.notoSans(
                                     fontWeight: FontWeight.w300, fontSize: 12),
                               ),
                             ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: //create a circle container with a green background color
-                              Container(
-                            height: 6,
-                            width: 6,
-                            decoration: BoxDecoration(
-                              color: indicatorColor,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: indicatorColor.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                            ),
                           ),
                         ),
                       ],
@@ -399,6 +382,18 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
               indicatorColor = Colors.orange;
             }
 
+            Widget iconImage =
+                Image.asset('assets/logout.png', fit: BoxFit.fitHeight);
+            if (semuaSantriTidakLulus[index].statusAktif == 'Dikeluarkan') {
+              iconImage = ColorFiltered(
+                colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
+                child: Image.asset(
+                  'assets/kick.png',
+                  fit: BoxFit.fitHeight,
+                ),
+              );
+            }
+
             return InkWell(
               onTap: () {
                 //open bottom sheet
@@ -438,7 +433,7 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
                                 height: 5,
                               ),
                               Text(
-                                '${semuaSantriTidakLulus[index].tglMasuk.toDate().year} -  sekarang (${semuaSantriTidakLulus[index].kelas})',
+                                '${semuaSantriTidakLulus[index].tglMasuk.toDate().year} -  ${getMonth(semuaSantriTidakLulus[index].tglKeluar.toDate().month.toString())} ${semuaSantriTidakLulus[index].tglKeluar.toDate().year}',
                                 style: GoogleFonts.notoSans(
                                     fontWeight: FontWeight.w300, fontSize: 12),
                               ),
@@ -449,20 +444,9 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
                           flex: 1,
                           child: //create a circle container with a green background color
                               Container(
-                            height: 6,
-                            width: 6,
-                            decoration: BoxDecoration(
-                              color: indicatorColor,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: indicatorColor.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                            ),
+                            height: 16,
+                            width: 16,
+                            child: iconImage,
                           ),
                         ),
                       ],
@@ -479,5 +463,63 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
             );
           }),
     );
+  }
+
+  String getMonth(String monthInt) {
+    String monthName = '';
+
+    switch (monthInt) {
+      //make a case of 1 - 12 and return the month name
+      case '1':
+        monthName = 'Januari';
+        return monthName;
+        break;
+      case '2':
+        monthName = 'Februari';
+        return monthName;
+        break;
+      case '3':
+        monthName = 'Maret';
+        return monthName;
+        break;
+      case '4':
+        monthName = 'April';
+        return monthName;
+        break;
+      case '5':
+        monthName = 'Mei';
+        return monthName;
+        break;
+      case '6':
+        monthName = 'Juni';
+        return monthName;
+        break;
+      case '7':
+        monthName = 'Juli';
+        return monthName;
+        break;
+      case '8':
+        monthName = 'Agustus';
+        return monthName;
+        break;
+      case '9':
+        monthName = 'September';
+        return monthName;
+        break;
+      case '10':
+        monthName = 'Oktober';
+        return monthName;
+        break;
+      case '11':
+        monthName = 'November';
+        return monthName;
+        break;
+      case '12':
+        monthName = 'Desember';
+        return monthName;
+        break;
+      default:
+        return monthName;
+    }
   }
 }

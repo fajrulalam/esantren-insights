@@ -22,6 +22,7 @@ import '../Objects/KelasNgajiObject.dart';
 import '../Objects/PelunasanObject.dart';
 import '../Objects/PembayaranObject.dart';
 import '../Objects/SantriObject.dart';
+import '../Screens/CekAbsensi.dart';
 import 'LoaderWidget.dart';
 
 class DashboardStatefulWidget extends StatefulWidget {
@@ -224,29 +225,35 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
                   child: Card(
                     color: Colors.blueGrey.shade50,
                     elevation: 2,
-                    child: Container(
-                      padding: EdgeInsets.all(12),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Center(
-                              child: Image.asset('assets/absen-ngaji.png',
-                                  height: MediaQuery.of(context).size.height *
-                                      0.07),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, CekAbsensi.id,
+                            arguments: userObject);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Image.asset('assets/absen-ngaji.png',
+                                    height: MediaQuery.of(context).size.height *
+                                        0.07),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Cek Absensi',
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                                fontSize: 16),
-                          ),
-                        ],
+                            SizedBox(height: 8),
+                            Text(
+                              'Cek Absensi',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey,
+                                  fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        // add your card widget content here
                       ),
-                      // add your card widget content here
                     ),
                   ),
                 ),
@@ -481,46 +488,46 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
             flex: 2,
             child: Row(
               children: [
-                Expanded(
-                  flex: 2,
-                  child: Card(
-                    elevation: 2,
-                    child: Container(
-                      color: Colors.blueGrey.shade50,
-                      padding: EdgeInsets.all(12),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Center(
-                              child: Image.asset('assets/activity-tracker.png',
-                                  height: MediaQuery.of(context).size.height *
-                                      0.07),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Log Aktivitas',
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                                fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      // add your card widget content here
-                    ),
-                  ),
-                ),
+                // Expanded(
+                //   flex: 2,
+                //   child: Card(
+                //     elevation: 2,
+                //     child: Container(
+                //       color: Colors.blueGrey.shade50,
+                //       padding: EdgeInsets.all(12),
+                //       child: Column(
+                //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //         children: [
+                //           Expanded(
+                //             child: Center(
+                //               child: Image.asset('assets/activity-tracker.png',
+                //                   height: MediaQuery.of(context).size.height *
+                //                       0.07),
+                //             ),
+                //           ),
+                //           SizedBox(height: 8),
+                //           Text(
+                //             'Log Aktivitas',
+                //             style: GoogleFonts.poppins(
+                //                 fontWeight: FontWeight.w600,
+                //                 color: Colors.grey,
+                //                 fontSize: 16),
+                //           ),
+                //         ],
+                //       ),
+                //       // add your card widget content here
+                //     ),
+                //   ),
+                // ),
                 Expanded(
                   flex: 3,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(context, DataLengkapSantri.id,
-                          arguments: userObject);
-                    },
-                    child: Card(
-                      elevation: 2,
+                  child: Card(
+                    elevation: 2,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, DataLengkapSantri.id,
+                            arguments: userObject);
+                      },
                       child: Container(
                         color: Colors.blueGrey.shade50,
                         padding: EdgeInsets.all(12),

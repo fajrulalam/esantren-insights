@@ -32,6 +32,7 @@ class SantriClass {
         tglLahir: data_map['tglLahir'] ?? "",
         tglMasuk: data_map['tglMasuk'],
         unitSekolah: data_map['unitSekolah'] ?? "",
+        tglKeluar: data_map['tglKeluar'] ?? Timestamp.now(),
         statusKepulangan: data_map['statusKepulangan'] ?? {},
         statusKesehatan: data_map['statusKesehatan'] ?? {},
       );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'Objects/CurrentUserObject.dart';
+import 'Screens/CekAbsensi.dart';
 import 'Screens/LoginPage.dart';
 import 'Screens/WidgetTree.dart';
 import 'firebase_options.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
             ),
         WidgetTree.id: (context) => WidgetTree(),
         LoginScreen.id: (context) => LoginScreen(),
+        CekAbsensi.id: (context) => const CekAbsensi(),
       },
     );
   }
