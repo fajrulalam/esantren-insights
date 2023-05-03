@@ -1,3 +1,4 @@
+import 'package:esantren_insights_v1/Screens/CekAbsensi2_Kelas.dart';
 import 'package:esantren_insights_v1/Screens/DataLengkapSantri.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
         WidgetTree.id: (context) => WidgetTree(),
         LoginScreen.id: (context) => LoginScreen(),
         CekAbsensi.id: (context) => const CekAbsensi(),
+        CekAbsensi2_Kelas.id: (context) => const CekAbsensi2_Kelas(),
       },
     );
   }

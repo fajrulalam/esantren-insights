@@ -1,6 +1,9 @@
+import 'package:esantren_insights_v1/Screens/CekAbsensi2_Kelas.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+
+import '../Services/CustomPageRouteAnimation.dart';
 
 class CekAbsensi extends StatefulWidget {
   static String id = 'CekAbsensi';
@@ -70,6 +73,263 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
             SizedBox(
               height: 16,
             ),
+            Expanded(
+              child: TabBarView(controller: _tabController, children: [
+                Container(
+                  child: GridView.builder(
+                    itemCount: 18, // number of items in the grid
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width ~/ 180,
+                      mainAxisSpacing: 4.0,
+                      crossAxisSpacing: 4.0,
+                      childAspectRatio: 180 / 180,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        padding: EdgeInsets.all(12),
+                        child: Card(
+                          elevation: 1,
+                          //give a rounded corner
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                  CustomPageRoute(child: CekAbsensi2_Kelas()));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      'Kelas VII A',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.library_add_check_outlined,
+                                        color: Colors.grey,
+                                        size: 16,
+                                      ),
+                                      SizedBox(
+                                        width: 8,
+                                      ),
+                                      Text(
+                                        '4x absensi',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.timelapse_outlined,
+                                        color: Colors.grey,
+                                        size: 16,
+                                      ),
+                                      SizedBox(
+                                        width: 8,
+                                      ),
+                                      Text(
+                                        '37 menit',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.people_outline_rounded,
+                                        color: Colors.grey,
+                                        size: 16,
+                                      ),
+                                      SizedBox(
+                                        width: 8,
+                                      ),
+                                      Text(
+                                        '30 hadirin',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                //container with child center with child text
+                Container(
+                  child: GridView.builder(
+                    itemCount: 18, // number of items in the grid
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
+                      crossAxisSpacing: 4.0,
+                      childAspectRatio: 14 / 7,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        padding: EdgeInsets.all(16),
+                        child: Card(
+                          elevation: 1,
+                          //give a rounded corner
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: InkWell(
+                            onTap: () {},
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  //aspect ratio of the image is 16/9
+                                  Expanded(
+                                    flex: 1,
+                                    child: AspectRatio(
+                                        aspectRatio: 9 / 16,
+                                        child: Image.network(
+                                            'https://firebasestorage.googleapis.com/v0/b/e-santren.appspot.com/o/fotoProfilPengurus%2FLINE_ALBUM_Mabok%20daging_230410.jpg?alt=media&token=406e66a1-3802-498f-a49c-d143363f5d5f',
+                                            fit: BoxFit.cover)),
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Text(
+                                          'Cak Farrel',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.house_outlined,
+                                              color: Colors.grey,
+                                              size: 16,
+                                            ),
+                                            SizedBox(
+                                              width: 8,
+                                            ),
+                                            Text(
+                                              'Mukim',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 4,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.library_add_check_outlined,
+                                              color: Colors.grey,
+                                              size: 16,
+                                            ),
+                                            SizedBox(
+                                              width: 8,
+                                            ),
+                                            Text(
+                                              '4x mengajar',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 4,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.timelapse_outlined,
+                                              color: Colors.grey,
+                                              size: 16,
+                                            ),
+                                            SizedBox(
+                                              width: 8,
+                                            ),
+                                            Text(
+                                              '37 menit',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ]),
+            )
           ],
         ),
       ),
