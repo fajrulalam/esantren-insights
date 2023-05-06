@@ -16,6 +16,7 @@ class KelasNgajiClass {
           kelasNgaji: semuaKelasNgaji[i],
           kodeAsrama: '',
           pengabsen: '',
+          idPengabsen: '',
           sakit: [],
           adaAbsensi: false,
           timestamp: Timestamp.now()));
@@ -39,6 +40,7 @@ class KelasNgajiClass {
           kelasNgaji: map['kelasNgaji'],
           kodeAsrama: map['kodeAsrama'],
           pengabsen: map['pengabsen'],
+          idPengabsen: map['idPengabsen'] ?? '',
           sakit: map['sakit'] ?? [],
           adaAbsensi: true,
           timestamp: map['timestamp']);

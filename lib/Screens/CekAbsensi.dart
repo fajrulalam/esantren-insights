@@ -1,8 +1,15 @@
+import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
+import 'package:esantren_insights_v1/Classes/CekAbsensiClass.dart';
+import 'package:esantren_insights_v1/Objects/CekAbsensiObject.dart';
+import 'package:esantren_insights_v1/Objects/CurrentUserObject.dart';
+import 'package:esantren_insights_v1/Objects/KelasNgajiObject.dart';
+import 'package:esantren_insights_v1/Objects/PengajarObject.dart';
 import 'package:esantren_insights_v1/Screens/CekAbsensi2_Kelas.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import '../Classes/CurrentUserClass.dart';
 import '../Services/CustomPageRouteAnimation.dart';
 
 class CekAbsensi extends StatefulWidget {
@@ -14,10 +21,14 @@ class CekAbsensi extends StatefulWidget {
 }
 
 class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
+  late CekAbsensiObject cekAbsensiObject;
   late TabController _tabController;
   bool _showHint = false;
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
+
+  List<PengajarObject> listPengajar = [];
+  List<KelasNgajiObject> listKelas = [];
 
   String timeFrame = 'Hari Ini';
   String keteranganTimeFrame = 'Rekapitulasi Absensi Hari Ini';
@@ -35,6 +46,8 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
         curve: Interval(0.8, 1.0, curve: Curves.easeInOut),
       ),
     );
+
+    getDataHarian();
   }
 
   @override
@@ -77,7 +90,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
               child: TabBarView(controller: _tabController, children: [
                 Container(
                   child: GridView.builder(
-                    itemCount: 18, // number of items in the grid
+                    itemCount: listKelas.length, // number of items in the grid
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: MediaQuery.of(context).size.width ~/ 180,
                       mainAxisSpacing: 4.0,
@@ -85,6 +98,12 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                       childAspectRatio: 180 / 180,
                     ),
                     itemBuilder: (BuildContext context, int index) {
+                      if (listKelas.isEmpty) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
                       return Container(
                         padding: EdgeInsets.all(12),
                         child: Card(
@@ -109,7 +128,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                   ),
                                   Center(
                                     child: Text(
-                                      'Kelas VII A',
+                                      listKelas[index].kelasNgaji,
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -131,7 +150,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                         width: 8,
                                       ),
                                       Text(
-                                        '4x absensi',
+                                        '${listKelas[index].berapaKaliAbsen}x absen',
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
@@ -153,7 +172,16 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                         width: 8,
                                       ),
                                       Text(
-                                        '37 menit',
+                                        timeFrame == 'Hari Ini'
+                                            ? getDurationHarian(
+                                                listKelas[index]
+                                                    .timestampSelesai!,
+                                                listKelas[index].timestamp)
+                                            : convertSecondsToMinutes(listKelas[
+                                                        index]
+                                                    .totalDurationInSeconds! ~/
+                                                listKelas[index]
+                                                    .berapaKaliAbsen!),
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
@@ -175,7 +203,12 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                         width: 8,
                                       ),
                                       Text(
-                                        '30 hadirin',
+                                        timeFrame == "Hari Ini"
+                                            ? listKelas[index]
+                                                .hadir
+                                                .length
+                                                .toString()
+                                            : '${listKelas[index].hadir.length ~/ listKelas[index].berapaKaliAbsen!} (rata\u00B2)',
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
@@ -195,13 +228,19 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                 //container with child center with child text
                 Container(
                   child: GridView.builder(
-                    itemCount: 18, // number of items in the grid
+                    itemCount:
+                        listPengajar.length, // number of items in the grid
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
                       crossAxisSpacing: 4.0,
                       childAspectRatio: 14 / 7,
                     ),
                     itemBuilder: (BuildContext context, int index) {
+                      if (listPengajar.isEmpty) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
                       return Container(
                         padding: EdgeInsets.all(16),
                         child: Card(
@@ -222,7 +261,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                     child: AspectRatio(
                                         aspectRatio: 9 / 16,
                                         child: Image.network(
-                                            'https://firebasestorage.googleapis.com/v0/b/e-santren.appspot.com/o/fotoProfilPengurus%2FLINE_ALBUM_Mabok%20daging_230410.jpg?alt=media&token=406e66a1-3802-498f-a49c-d143363f5d5f',
+                                            listPengajar[index].imagePath,
                                             fit: BoxFit.cover)),
                                   ),
                                   SizedBox(
@@ -240,7 +279,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                           height: 8,
                                         ),
                                         Text(
-                                          'Cak Farrel',
+                                          '${listPengajar[index].honoraryName} ${listPengajar[index].namaPanggilan}',
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -261,7 +300,9 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                               width: 8,
                                             ),
                                             Text(
-                                              'Mukim',
+                                              listPengajar[index].mukim == true
+                                                  ? 'Mukim'
+                                                  : 'Non-mukim',
                                               style: GoogleFonts.poppins(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w400,
@@ -283,7 +324,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                               width: 8,
                                             ),
                                             Text(
-                                              '4x mengajar',
+                                              '${listPengajar[index].berapaKaliAbsen}x absen',
                                               style: GoogleFonts.poppins(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w400,
@@ -305,7 +346,17 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                               width: 8,
                                             ),
                                             Text(
-                                              '37 menit',
+                                              timeFrame == 'Hari Ini'
+                                                  ? getDurationHarian(
+                                                      listPengajar[index]
+                                                          .timestampSelesai!,
+                                                      listPengajar[index]
+                                                          .timestampMulai)
+                                                  : convertSecondsToMinutes(
+                                                      listPengajar[index]
+                                                              .totalDurationInSeconds! ~/
+                                                          listPengajar[index]
+                                                              .berapaKaliAbsen!),
                                               style: GoogleFonts.poppins(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w400,
@@ -373,9 +424,11 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                 switch (value.toString()) {
                   case "Hari Ini":
                     keteranganTimeFrame = 'Rekap hari Ini';
+                    getDataHarian();
                     break;
                   case "Minggu Ini":
                     keteranganTimeFrame = 'Rekap minggu ini (Sabtu - Jumat)';
+                    getDataMingguan();
                     break;
                   case "Bulan Ini":
                     String bulan =
@@ -440,5 +493,57 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
           ),
       ],
     );
+  }
+
+  void getDataHarian() async {
+    CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
+    cekAbsensiObject = await CekAbsensiClass.cekAbsensiHarian(userObject);
+
+    // CekAbsensiClass.getDataMingguan(userObject);
+
+    setState(() {
+      listKelas = cekAbsensiObject.kelasNgajiList;
+      listPengajar = cekAbsensiObject.pengajarList;
+    });
+  }
+
+  String getDurationHarian(Timestamp timestampSelesai, Timestamp timestamp) {
+    if (timestampSelesai == null) {
+      return 'masih berjalan';
+    } else {
+      //difference between timestampSelesai selesai and timestamp, return in the format of m minutes
+      Duration difference =
+          timestampSelesai.toDate().difference(timestamp.toDate());
+      int minutes = difference.inMinutes;
+      if (minutes < 0) {
+        return 'masih berjalan';
+      } else {
+        return '${minutes}m';
+      }
+    }
+  }
+
+  String convertSecondsToMinutes(num? totalDurationInSeconds) {
+    //convert seconds to minutes
+    int minutes = (totalDurationInSeconds! / 60).truncate();
+    // return in the format of m minutes
+    return '${minutes}m (rata\u00B2)';
+  }
+
+  void getDataMingguan() async {
+    setState(() {
+      listKelas = [];
+      listPengajar = [];
+    });
+
+    CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
+    cekAbsensiObject = await CekAbsensiClass.getDataMingguan(userObject);
+
+    setState(() {
+      listKelas = CekAbsensiClass.aggregateKelasNgajiObject(
+          cekAbsensiObject.kelasNgajiList);
+      listPengajar = CekAbsensiClass.aggregatePengajarObject(
+          cekAbsensiObject.pengajarList);
+    });
   }
 }
