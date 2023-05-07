@@ -6,6 +6,7 @@ class AsramaObject {
   String namaAsrama;
   String pathFotoAsrama;
   String profilSingkat;
+  String jamSelesaiNgaji;
   List<dynamic> program;
   final List<dynamic> kelasNgaji;
   final List<dynamic> listFoto;
@@ -19,6 +20,7 @@ class AsramaObject {
       required this.pathFotoAsrama,
       required this.profilSingkat,
       required this.kelasNgaji,
+      required this.jamSelesaiNgaji,
       required this.program,
       required this.listFoto});
 }

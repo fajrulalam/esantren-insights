@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late double persentaseLunasSPP = 1;
 
   AsramaObject asramaDetail = AsramaObject(
+      jamSelesaiNgaji: '6:30',
       listFoto: [],
       kelasNgaji: ['a', 'b'],
       id: 'id',
