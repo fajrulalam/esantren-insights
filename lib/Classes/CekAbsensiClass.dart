@@ -217,6 +217,131 @@ class CekAbsensiClass {
     return cekAbsensiObject;
   }
 
+  static Future<CekAbsensiObject> getDataBulanan(
+      CurrentUserObject userObject) async {
+    CekAbsensiObject cekAbsensiObject =
+        CekAbsensiObject(kelasNgajiList: [], pengajarList: []);
+
+    //if today is saturday, then get timestamp today at 00:00
+    //else get timestamp last saturday at 00:00
+    Timestamp timestampForQuery;
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    Timestamp timestampToday = Timestamp.fromDate(today);
+
+    //get timestamp on the first day of this month at 00:00
+    DateTime firstDayOfThisMonth = DateTime(now.year, now.month, 1);
+    Timestamp timestampFirstDayOfThisMonth =
+        Timestamp.fromDate(firstDayOfThisMonth);
+    timestampForQuery = timestampFirstDayOfThisMonth;
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("AktivitasCollection")
+        .doc(userObject.kodeAsrama)
+        .collection('AbsenNgajiLogs')
+        .where('timestamp', isGreaterThan: timestampForQuery)
+        .get();
+
+    List<KelasNgajiObject> dataKelas = [];
+    List<String> listStringKelas = [];
+    List<String> listStringPengajar = [];
+    List<PengajarObject> dataPengajar = [];
+
+    await Future.wait(querySnapshot.docs.map((element) async {
+      Map kelasMap = element.data() as Map<String, dynamic>;
+
+      String kelasNgaji = kelasMap['kelasNgaji'];
+
+      if (!listStringKelas.contains(kelasNgaji)) {
+        // listStringKelas.add(kelasNgaji);
+        //add the detail in datakelas
+        dataKelas.add(KelasNgajiObject(
+            id: element.id,
+            alfa: kelasMap['alfa'] ?? [],
+            hadir: kelasMap['hadir'] ?? [],
+            imagePath: kelasMap['imagePath'],
+            izin: kelasMap['izin'] ?? [],
+            kelasNgaji: kelasMap['kelasNgaji'],
+            kodeAsrama: kelasMap['kodeAsrama'],
+            pengabsen: kelasMap['pengabsen'],
+            idPengabsen: kelasMap['idPengabsen'] ?? '',
+            sakit: kelasMap['sakit'] ?? [],
+            adaAbsensi: true,
+            timestamp: kelasMap['timestamp'],
+            berapaKaliAbsen: 1,
+            totalDurationInSeconds: kelasMap['timestampSelesai'].seconds -
+                kelasMap['timestamp'].seconds,
+            timestampSelesai: kelasMap['timestampSelesai']));
+        print('IF: isi data kelas ${dataKelas.length}');
+      } else {
+        print('ELSE: isi data kelas ${dataKelas.length}');
+
+        int index = listStringKelas.indexOf(kelasNgaji);
+        dataKelas[index].alfa.addAll(kelasMap['alfa'] ?? []);
+        dataKelas[index].hadir.addAll(kelasMap['hadir'] ?? []);
+        dataKelas[index].izin.addAll(kelasMap['izin'] ?? []);
+        dataKelas[index].sakit.addAll(kelasMap['sakit'] ?? []);
+        dataKelas[index].berapaKaliAbsen =
+            dataKelas[index].berapaKaliAbsen! + 1;
+        dataKelas[index].totalDurationInSeconds =
+            dataKelas[index].totalDurationInSeconds! +
+                (kelasMap['timestampSelesai'].seconds -
+                    kelasMap['timestamp'].seconds);
+      }
+
+      if (!listStringPengajar.contains(kelasMap['idPengabsen'])) {
+        // listStringPengajar.add(kelasMap['idPengabsen']);
+        print('masuk sini');
+
+        // DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        //     .collection("PengurusCollection")
+        //     .doc(kelasMap['idPengabsen'])
+        //     .get();
+
+        final value = await FirebaseFirestore.instance
+            .collection("PengurusCollection")
+            .doc(kelasMap['idPengabsen'])
+            .get();
+        Map mapPengurus = value.data() as Map<String, dynamic>;
+
+        String honoraryName = mapPengurus['honoraryName'];
+        String namaLengkap = mapPengurus['namaLengkap'];
+        String namaPanggilan = mapPengurus['namaPanggilan'];
+        String imagePath = mapPengurus['fotoProfil'];
+        bool mukim = mapPengurus['mukim'];
+
+        dataPengajar.add(PengajarObject(
+          id: kelasMap['idPengabsen'],
+          honoraryName: honoraryName,
+          namaLengkap: namaLengkap,
+          namaPanggilan: namaPanggilan,
+          imagePath: imagePath,
+          mukim: mukim,
+          berapaKaliAbsen: 1,
+          timestampMulai: kelasMap['timestamp'],
+          timestampSelesai: kelasMap['timestampSelesai']!,
+          totalDurationInSeconds: kelasMap['timestampSelesai'].seconds -
+              kelasMap['timestamp'].seconds,
+        ));
+        print('IF: isi data pengajar ${dataPengajar.length}');
+      } else {
+        print('ELSE: isi data pengajar ${dataPengajar.length}');
+        int index = listStringPengajar.indexOf(kelasMap['idPengabsen']);
+        dataPengajar[index].berapaKaliAbsen =
+            dataPengajar[index].berapaKaliAbsen! + 1;
+        dataPengajar[index].totalDurationInSeconds =
+            dataPengajar[index].totalDurationInSeconds! +
+                (kelasMap['timestampSelesai'].seconds -
+                    kelasMap['timestamp'].seconds);
+      }
+    }));
+
+    cekAbsensiObject =
+        CekAbsensiObject(kelasNgajiList: dataKelas, pengajarList: dataPengajar);
+
+    return cekAbsensiObject;
+  }
+
   static List<KelasNgajiObject> aggregateKelasNgajiObject(
       List<KelasNgajiObject> kelasngajiobjectRaw) {
     List<KelasNgajiObject> kelasNgajiObject = [];
@@ -267,5 +392,42 @@ class CekAbsensiClass {
     }
 
     return pengajarObjectList;
+  }
+
+  static Future<List<KelasNgajiObject>> getKelasNgajiList(
+      CurrentUserObject userObject, String kelasNgaji) async {
+    List<KelasNgajiObject> kelasNgajiList = [];
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("AktivitasCollection")
+        .doc(userObject.kodeAsrama)
+        .collection('AbsenNgajiLogs')
+        .where('kelasNgaji', isEqualTo: kelasNgaji)
+        .limit(30)
+        .get();
+
+    for (var element in querySnapshot.docs) {
+      Map<String, dynamic> kelasMap = element.data() as Map<String, dynamic>;
+
+      kelasNgajiList.add(KelasNgajiObject(
+          id: element.id,
+          alfa: kelasMap['alfa'] ?? [],
+          hadir: kelasMap['hadir'] ?? [],
+          imagePath: kelasMap['imagePath'],
+          izin: kelasMap['izin'] ?? [],
+          kelasNgaji: kelasMap['kelasNgaji'],
+          kodeAsrama: kelasMap['kodeAsrama'],
+          pengabsen: kelasMap['pengabsen'],
+          idPengabsen: kelasMap['idPengabsen'] ?? '',
+          sakit: kelasMap['sakit'] ?? [],
+          adaAbsensi: true,
+          timestamp: kelasMap['timestamp'],
+          berapaKaliAbsen: 1,
+          totalDurationInSeconds: kelasMap['timestampSelesai'].seconds -
+              kelasMap['timestamp'].seconds,
+          timestampSelesai: kelasMap['timestampSelesai']));
+    }
+
+    return kelasNgajiList;
   }
 }

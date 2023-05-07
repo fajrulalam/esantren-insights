@@ -27,6 +27,8 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
 
+  late CurrentUserObject userObject;
+
   List<PengajarObject> listPengajar = [];
   List<KelasNgajiObject> listKelas = [];
 
@@ -114,8 +116,11 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                           ),
                           child: InkWell(
                             onTap: () {
-                              Navigator.of(context).push(
-                                  CustomPageRoute(child: CekAbsensi2_Kelas()));
+                              Navigator.of(context).push(CustomPageRoute(
+                                  child: CekAbsensi2_Kelas(
+                                kelas: listKelas[index].kelasNgaji,
+                                userObject: userObject,
+                              )));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -428,12 +433,13 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                     break;
                   case "Minggu Ini":
                     keteranganTimeFrame = 'Rekap minggu ini (Sabtu - Jumat)';
-                    getDataMingguan();
+                    getDataMingguan(userObject);
                     break;
                   case "Bulan Ini":
                     String bulan =
                         DateFormat('MMMM', 'id_ID').format(DateTime.now());
                     keteranganTimeFrame = 'Rekap bulan $bulan';
+                    getDataBulanan(userObject);
                     break;
                 }
               });
@@ -496,7 +502,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
   }
 
   void getDataHarian() async {
-    CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
+    userObject = await CurrentUserClass().getUserDetail();
     cekAbsensiObject = await CekAbsensiClass.cekAbsensiHarian(userObject);
 
     // CekAbsensiClass.getDataMingguan(userObject);
@@ -530,13 +536,30 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
     return '${minutes}m (rata\u00B2)';
   }
 
-  void getDataMingguan() async {
+  void getDataMingguan(CurrentUserObject userObject) async {
     setState(() {
       listKelas = [];
       listPengajar = [];
     });
 
-    CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
+    // CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
+    cekAbsensiObject = await CekAbsensiClass.getDataMingguan(userObject);
+
+    setState(() {
+      listKelas = CekAbsensiClass.aggregateKelasNgajiObject(
+          cekAbsensiObject.kelasNgajiList);
+      listPengajar = CekAbsensiClass.aggregatePengajarObject(
+          cekAbsensiObject.pengajarList);
+    });
+  }
+
+  void getDataBulanan(CurrentUserObject userObject) async {
+    setState(() {
+      listKelas = [];
+      listPengajar = [];
+    });
+
+    // CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
     cekAbsensiObject = await CekAbsensiClass.getDataMingguan(userObject);
 
     setState(() {

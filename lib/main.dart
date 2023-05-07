@@ -47,7 +47,11 @@ class MyApp extends StatelessWidget {
         WidgetTree.id: (context) => WidgetTree(),
         LoginScreen.id: (context) => LoginScreen(),
         CekAbsensi.id: (context) => const CekAbsensi(),
-        CekAbsensi2_Kelas.id: (context) => const CekAbsensi2_Kelas(),
+        CekAbsensi2_Kelas.id: (context) => CekAbsensi2_Kelas(
+              kelas: ModalRoute.of(context)!.settings.arguments as String,
+              userObject: ModalRoute.of(context)!.settings.arguments
+                  as CurrentUserObject,
+            ),
       },
     );
   }
