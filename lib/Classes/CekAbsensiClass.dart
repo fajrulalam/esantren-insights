@@ -234,6 +234,7 @@ class CekAbsensiClass {
     Timestamp timestampFirstDayOfThisMonth =
         Timestamp.fromDate(firstDayOfThisMonth);
     timestampForQuery = timestampFirstDayOfThisMonth;
+    print('timestampForQuery: $timestampForQuery');
 
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("AktivitasCollection")

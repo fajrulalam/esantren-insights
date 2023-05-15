@@ -560,7 +560,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
     });
 
     // CurrentUserObject userObject = await CurrentUserClass().getUserDetail();
-    cekAbsensiObject = await CekAbsensiClass.getDataMingguan(userObject);
+    cekAbsensiObject = await CekAbsensiClass.getDataBulanan(userObject);
 
     setState(() {
       listKelas = CekAbsensiClass.aggregateKelasNgajiObject(
