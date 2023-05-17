@@ -13,8 +13,15 @@ class CustomPageRoute extends PageRouteBuilder {
   Widget buildTransitions(BuildContext context, Animation<double> animation,
           Animation<double> secondaryAnimation, Widget child) =>
       SlideTransition(
-        position: Tween<Offset>(begin: getBeginOffset(), end: Offset.zero)
-            .animate(animation),
+        position: Tween<Offset>(
+          begin: getBeginOffset(),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOut,
+          ),
+        ),
         child: child,
       );
 

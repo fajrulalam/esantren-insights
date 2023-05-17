@@ -213,7 +213,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                                 .hadir
                                                 .length
                                                 .toString()
-                                            : '${listKelas[index].hadir.length ~/ listKelas[index].berapaKaliAbsen!} (rata\u00B2)',
+                                            : '~${listKelas[index].hadir.length ~/ listKelas[index].berapaKaliAbsen!} peserta',
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
@@ -533,7 +533,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
     //convert seconds to minutes
     int minutes = (totalDurationInSeconds! / 60).truncate();
     // return in the format of m minutes
-    return '${minutes}m (rata\u00B2)';
+    return '~${minutes} menit';
   }
 
   void getDataMingguan(CurrentUserObject userObject) async {

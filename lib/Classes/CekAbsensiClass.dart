@@ -404,6 +404,7 @@ class CekAbsensiClass {
         .doc(userObject.kodeAsrama)
         .collection('AbsenNgajiLogs')
         .where('kelasNgaji', isEqualTo: kelasNgaji)
+        .orderBy('timestamp', descending: true)
         .limit(30)
         .get();
 

@@ -15,6 +15,7 @@ class AsramaClass {
         didirikanPada: 2000,
         lokasiGeografis: 'lokasiGeografis',
         namaAsrama: 'namaAsrama',
+        hafalan: [],
         pathFotoAsrama: 'pathFotoAsrama',
         profilSingkat: 'profilSingkat',
         program: ['a']);
