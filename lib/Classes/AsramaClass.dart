@@ -11,6 +11,7 @@ class AsramaClass {
         kelasNgaji: [],
         jamSelesaiNgaji: '6:30',
         id: 'id',
+        honorUstadz: 0,
         pengasuh: ['a', 'b'],
         didirikanPada: 2000,
         lokasiGeografis: 'lokasiGeografis',
@@ -28,6 +29,7 @@ class AsramaClass {
       String id = value.id;
       String namaAsrama = value.get("namaAsrama").toString();
       List<dynamic> pengasuh = value.get("Pengasuh");
+      int honorUstadz = value.get("honorUstadz");
       int didirikanPada = value.get("didirikanPada");
       String lokasiGeografis = value.get("lokasi_geografis").toString();
       String profilSingkat = value.get("profilSingkat").toString();
@@ -40,6 +42,7 @@ class AsramaClass {
           id: id,
           jamSelesaiNgaji: jamSelesaiNgaji,
           namaAsrama: namaAsrama,
+          honorUstadz: honorUstadz,
           pengasuh: pengasuh,
           didirikanPada: didirikanPada,
           lokasiGeografis: lokasiGeografis,

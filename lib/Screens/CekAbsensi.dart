@@ -1,5 +1,6 @@
 import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
 import 'package:esantren_insights_v1/Classes/CekAbsensiClass.dart';
+import 'package:esantren_insights_v1/Objects/AsramaObject.dart';
 import 'package:esantren_insights_v1/Objects/CekAbsensiObject.dart';
 import 'package:esantren_insights_v1/Objects/CurrentUserObject.dart';
 import 'package:esantren_insights_v1/Objects/KelasNgajiObject.dart';
@@ -14,7 +15,9 @@ import '../Services/CustomPageRouteAnimation.dart';
 
 class CekAbsensi extends StatefulWidget {
   static String id = 'CekAbsensi';
-  const CekAbsensi({Key? key}) : super(key: key);
+  final AsramaObject asramaDetailObject;
+  const CekAbsensi({Key? key, required this.asramaDetailObject})
+      : super(key: key);
 
   @override
   State<CekAbsensi> createState() => _CekAbsensiState();
@@ -262,7 +265,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                 children: [
                                   //aspect ratio of the image is 16/9
                                   Expanded(
-                                    flex: 1,
+                                    flex: 2,
                                     child: AspectRatio(
                                         aspectRatio: 9 / 16,
                                         child: Image.network(
@@ -316,14 +319,14 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                           ],
                                         ),
                                         SizedBox(
-                                          height: 4,
+                                          height: 12,
                                         ),
                                         Row(
                                           children: [
                                             Icon(
                                               Icons.library_add_check_outlined,
                                               color: Colors.grey,
-                                              size: 16,
+                                              size: 18,
                                             ),
                                             SizedBox(
                                               width: 8,
@@ -331,8 +334,8 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                             Text(
                                               '${listPengajar[index].berapaKaliAbsen}x absen',
                                               style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w400,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ],
@@ -340,10 +343,35 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                         SizedBox(
                                           height: 4,
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Opacity(
+                                          opacity: 0,
+                                          child: Text(
+                                            '${listPengajar[index].honoraryName} ${listPengajar[index].namaPanggilan}',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        Spacer(),
                                         Row(
                                           children: [
                                             Icon(
-                                              Icons.timelapse_outlined,
+                                              Icons.timer_outlined,
                                               color: Colors.grey,
                                               size: 16,
                                             ),
@@ -365,6 +393,28 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                                               style: GoogleFonts.poppins(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 12,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.monetization_on_rounded,
+                                              color: Colors.green,
+                                              size: 16,
+                                            ),
+                                            SizedBox(
+                                              width: 8,
+                                            ),
+                                            Text(
+                                              'Rp ${NumberFormat.decimalPattern().format(listPengajar[index].berapaKaliAbsen! * widget.asramaDetailObject.honorUstadz! * 10).replaceAll(',', '.')}',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ],

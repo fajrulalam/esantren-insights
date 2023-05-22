@@ -1,3 +1,4 @@
+import 'package:esantren_insights_v1/Objects/AsramaObject.dart';
 import 'package:esantren_insights_v1/Screens/CekAbsensi2_Kelas.dart';
 import 'package:esantren_insights_v1/Screens/DataLengkapSantri.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -46,7 +47,9 @@ class MyApp extends StatelessWidget {
             ),
         WidgetTree.id: (context) => WidgetTree(),
         LoginScreen.id: (context) => LoginScreen(),
-        CekAbsensi.id: (context) => const CekAbsensi(),
+        CekAbsensi.id: (context) => CekAbsensi(
+            asramaDetailObject:
+                ModalRoute.of(context)!.settings.arguments as AsramaObject),
         CekAbsensi2_Kelas.id: (context) => CekAbsensi2_Kelas(
               kelas: ModalRoute.of(context)!.settings.arguments as String,
               userObject: ModalRoute.of(context)!.settings.arguments

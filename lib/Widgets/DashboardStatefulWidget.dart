@@ -228,7 +228,7 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
                     child: InkWell(
                       onTap: () {
                         Navigator.pushNamed(context, CekAbsensi.id,
-                            arguments: userObject);
+                            arguments: asramaDetail);
                       },
                       child: Container(
                         padding: EdgeInsets.all(12),

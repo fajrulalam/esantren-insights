@@ -9,6 +9,7 @@ class AsramaObject {
   String jamSelesaiNgaji;
   List<dynamic> program;
   List<dynamic>? hafalan;
+  int? honorUstadz;
   final List<dynamic> kelasNgaji;
   final List<dynamic> listFoto;
 
@@ -19,6 +20,7 @@ class AsramaObject {
       required this.lokasiGeografis,
       required this.namaAsrama,
       this.hafalan,
+        this.honorUstadz,
       required this.pathFotoAsrama,
       required this.profilSingkat,
       required this.kelasNgaji,
