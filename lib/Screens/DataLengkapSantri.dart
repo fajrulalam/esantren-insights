@@ -89,19 +89,24 @@ class _DataLengkapSantriState extends State<DataLengkapSantri>
                 search(value);
               },
             ),
-            if (semuaSantriAktif.isEmpty)
-              Expanded(child: Center(child: CircularProgressIndicator()))
-            else
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    AktifTab(),
-                    AlumniTab(),
-                    TidakLulusTab(),
-                  ],
-                ),
-              ),
+            Container(
+              height: MediaQuery.of(context).size.height - 210,
+              child: Flex(direction: Axis.vertical, children: [
+                if (semuaSantriAktif.isEmpty)
+                  Expanded(child: Center(child: CircularProgressIndicator()))
+                else
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        AktifTab(),
+                        AlumniTab(),
+                        TidakLulusTab(),
+                      ],
+                    ),
+                  ),
+              ]),
+            )
           ],
         ),
       ),

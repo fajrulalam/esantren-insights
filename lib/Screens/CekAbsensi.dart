@@ -239,7 +239,7 @@ class _CekAbsensiState extends State<CekAbsensi> with TickerProviderStateMixin {
                     itemCount:
                         listPengajar.length, // number of items in the grid
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width ~/ 200,
+                      crossAxisCount: 1,
                       crossAxisSpacing: 4.0,
                       childAspectRatio: 14 / 7,
                     ),

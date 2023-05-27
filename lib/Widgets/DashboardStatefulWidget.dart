@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esantren_insights_v1/Classes/AbsenKamarHarianClass.dart';
 import 'package:esantren_insights_v1/Objects/CurrentUserObject.dart';
 import 'package:esantren_insights_v1/Objects/DataHomePageObject.dart';
 import 'package:esantren_insights_v1/Screens/DataLengkapSantri.dart';
@@ -17,6 +18,7 @@ import '../Classes/KelasNgajiClass.dart';
 import '../Classes/PelunasanClass.dart';
 import '../Classes/PembayaranClass.dart';
 import '../Classes/SantriClass.dart';
+import '../Objects/AbsenKamarHarianObject.dart';
 import '../Objects/AsramaObject.dart';
 import '../Objects/KelasNgajiObject.dart';
 import '../Objects/PelunasanObject.dart';
@@ -58,6 +60,8 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
   List<PembayaranObject_6BulanTerakhir> chartData = [];
   List<SantriObject> semuaSantriAktif = [];
   List<KelasNgajiObject> semuaKelasNgaji = [];
+  List<AbsenKamarHarianObject> semuaKamarAbsen = [];
+  List<String> kelasYangSudahAbsen = [];
 
   _DashboardStatefulWidgetState(this.userObject, this.asramaDetail);
   // List<int> pemasukanSPP = [0, 0, 0];
@@ -94,7 +98,7 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
             child: Card(
               elevation: 2,
               child: DefaultTabController(
-                length: 2,
+                length: 3,
                 child: Container(
                   padding:
                       EdgeInsets.only(top: 12, right: 0, left: 0, bottom: 4),
@@ -105,6 +109,39 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
                         Expanded(
                           child: TabBarView(children: [
                             jumlahSantriAktifCard_1(context),
+                            Container(
+                                child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  child: Text(
+                                    'Absen Kelas Harian',
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey,
+                                        fontSize: 16),
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    AbsenKelasTingat(kelasTingkat: 'VII'),
+                                    AbsenKelasTingat(kelasTingkat: 'VIII'),
+                                    AbsenKelasTingat(kelasTingkat: 'IX'),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    AbsenKelasTingat(kelasTingkat: 'X'),
+                                    AbsenKelasTingat(kelasTingkat: 'XI'),
+                                    AbsenKelasTingat(kelasTingkat: 'XII'),
+                                  ],
+                                )
+                              ],
+                            )),
                             Container(
                               child: Center(
                                 child: PieChart(
@@ -140,6 +177,9 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
                               unselectedLabelColor:
                                   Colors.grey.withOpacity(0.4),
                               tabs: [
+                                Tab(
+                                  icon: Icon(Icons.circle, size: 8),
+                                ),
                                 Tab(
                                   icon: Icon(Icons.circle, size: 8),
                                 ),
@@ -819,6 +859,22 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
         .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
         .snapshots();
 
+    Stream<QuerySnapshot> _absenKelasHarian = FirebaseFirestore.instance
+        .collection('AktivitasCollection')
+        .doc(userObject.kodeAsrama)
+        .collection('AbsenKamarLogs')
+        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(today))
+        .snapshots();
+
+    _absenKelasHarian.listen((QuerySnapshot snapshot) {
+      setState(() {
+        semuaKamarAbsen = AbsenKamarHarianClass.getAbsenKelasHariIni(snapshot);
+        semuaKamarAbsen.forEach((element) {
+          kelasYangSudahAbsen.add(element.kelasTingkat);
+        });
+      });
+    });
+
     _kelasNgajiStream.listen((QuerySnapshot snapshot) {
       semuaKelasNgaji = KelasNgajiClass.getKelasNgajiDetail(
           snapshot, asramaDetail.kelasNgaji);
@@ -861,6 +917,87 @@ class _DashboardStatefulWidgetState extends State<DashboardStatefulWidget> {
     print(asramaDetail.namaAsrama);
     print(asramaDetail.lokasiGeografis);
     print(asramaDetail.profilSingkat);
+  }
+
+  Widget AbsenKelasTingat({required String kelasTingkat}) {
+    bool isExist = kelasYangSudahAbsen.contains(kelasTingkat);
+
+    return GestureDetector(
+      onTap: () {
+        //find the index where kelasTingkat == kelasTingkat
+        int index = semuaKamarAbsen
+            .indexWhere((element) => element.kelasTingkat == kelasTingkat);
+        //make a scaffold that shows pengabsen and timestamp
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.green[300],
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //make rich text that separates the string before the ':' to bold
+              Text.rich(
+                TextSpan(
+                    text: 'Kelas: ',
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w800, color: Colors.black54),
+                    children: [
+                      TextSpan(
+                          text: '${semuaKamarAbsen[index].kelasTingkat}',
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black54))
+                    ]),
+              ),
+              Text.rich(
+                TextSpan(
+                    text: 'Pengabsen: ',
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w800, color: Colors.black54),
+                    children: [
+                      TextSpan(
+                          text: '${semuaKamarAbsen[index].pengabsen}',
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black54))
+                    ]),
+              ),
+              Text.rich(
+                TextSpan(
+                    text: 'Waktu: ',
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w800, color: Colors.black54),
+                    children: [
+                      TextSpan(
+                          text:
+                              ' ${DateFormat('dd MMMM yyyy, HH:mm').format(semuaKamarAbsen[index].timestamp.toDate())}',
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black54))
+                    ]),
+              ),
+            ],
+          ),
+          duration: Duration(seconds: 2),
+        ));
+      },
+      child: Container(
+        width: 88,
+        child: Card(
+          color: isExist ? Colors.green[300] : Colors.grey[300],
+          child: Container(
+              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 24),
+              child: Center(
+                child: Text(
+                  kelasTingkat,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isExist ? Colors.white : Colors.black54,
+                  ),
+                ),
+              )),
+        ),
+      ),
+    );
   }
 }
 
