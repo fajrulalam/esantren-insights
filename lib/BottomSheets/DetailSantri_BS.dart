@@ -95,14 +95,17 @@ void detailSantriBottomSheet(BuildContext context,
                           children: [
                             TextSpan(
                               text: filterSantriSesuaiKeterangan[index]
-                                  .statusKesehatan['keluhan']
-                                  .toString()
-                                  .toCapitalized(),
+                                      .statusKesehatan['keluhan']
+                                  ? filterSantriSesuaiKeterangan[index]
+                                      .statusKesehatan['keluhan']
+                                      .toString()
+                                      .toCapitalized()
+                                  : "Sakit",
                               style: GoogleFonts.poppins(fontSize: 14),
                             ),
                             TextSpan(
                               text:
-                                  '  (Dirawat di ${getDirawatDi(filterSantriSesuaiKeterangan[index].statusKesehatan)})',
+                                  '  (Dirawat di ${getDirawatDi(filterSantriSesuaiKeterangan[index])})',
                               style: GoogleFonts.poppins(fontSize: 12),
                             ),
                           ],
@@ -170,8 +173,13 @@ getRencanaTanggalKembali(Map<String, dynamic> map) {
   return DateFormat('EEEE, dd MMMM yyyy', 'id').format(dateTime);
 }
 
-String getDirawatDi(Map<String, dynamic> map) {
-  return map['dirawatDi'];
+String getDirawatDi(SantriObject object) {
+  try {
+    Map<String, dynamic> map = object.statusKesehatan;
+    return map['dirawatDi'];
+  } catch (e) {
+    return 'Asrama';
+  }
 }
 
 extension StringCasingExtension on String {
