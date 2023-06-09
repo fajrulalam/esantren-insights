@@ -95,12 +95,8 @@ void detailSantriBottomSheet(BuildContext context,
                           children: [
                             TextSpan(
                               text: filterSantriSesuaiKeterangan[index]
-                                      .statusKesehatan['keluhan']
-                                  ? filterSantriSesuaiKeterangan[index]
-                                      .statusKesehatan['keluhan']
-                                      .toString()
-                                      .toCapitalized()
-                                  : "Sakit",
+                                      .statusKesehatan['keluhan'] ??
+                                  "Sakit",
                               style: GoogleFonts.poppins(fontSize: 14),
                             ),
                             TextSpan(
